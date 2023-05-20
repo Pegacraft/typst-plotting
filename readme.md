@@ -1,6 +1,7 @@
 # A plotting library for Typst
 
-A Typst library for drawing graphs and plots
+A Typst library for drawing graphs and plots.
+Made by Gewi413 and Pegacraffft
 
 ## Currently supported graphs
 
