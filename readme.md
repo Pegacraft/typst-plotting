@@ -11,6 +11,8 @@ Made by Gewi413 and Pegacraffft
 
 - Histograms
 
+- Pie charts
+
   (more to come)
 
 ## How to use
