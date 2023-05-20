@@ -22,11 +22,11 @@
       (0, 0), (2, 2), (3, 0), (4, 4), (5, 7), (6, 6), (7, 9), (8, 5), (9, 9), (10, 1)
     )
     let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom", stroke: blue, marking_color: red, value_color: purple)
-    let y_axis = axis(min: 0, max: 11, step: 2, location: "left")
+    let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
     let pl = plot(data: data, axes: (x_axis, y_axis))
     scatter_plot(pl, (100%, 25%))
     graph_plot(pl, (100%, 25%))
-    graph_plot(pl, (100%, 25%), rounding: 30%, caption: "Graph Plot with caption and rounding")
+    graph_plot(pl, (100%, 25%), rounding: 30%, caption: "Graph Plot with caption and rounding", caption_distance: 20pt)
 }
 
 #let test_3() = {
@@ -43,6 +43,19 @@
 }
 
 #let test_4() = {
+  let data = ((10, "Male"), (20, "Female"), (15, "Divers"), (2, "Other"))
+
+  let p = plot(data: data)
+  //pagebreak()
+  pie_chart(p, (100%, 20%), display_style: "legend-inside-chart")
+  pie_chart(p, (100%, 20%), display_style: "hor-chart-legend")
+  pie_chart(p, (100%, 20%), display_style: "hor-legend-chart")
+  pie_chart(p, (100%, 20%), display_style: "vert-chart-legend")
+  pie_chart(p, (100%, 20%), display_style: "vert-legend-chart")
+}
+
+#let paper_test() = {
+  set par(justify: true)
   pagebreak()
   [
     #set align(center)
@@ -61,7 +74,7 @@
       scatter_plot(p, (100%, 20%))
     }
     == Second sub topic
-    #lorem(200)
+    #lorem(150)
     #{
       let data = (
         18000, 18000, 18000, 18000, 18000, 18000, 18000, 18000, 18000, 18000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000,28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 35000, 46000, 75000, 95000
@@ -74,13 +87,25 @@
       let pl = plot(data: classes, axes: (x_axis, y_axis))
       histogram(pl, (100%, 20%), stroke: black)
     }
+
+    == Third sub topic
+    #{
+      lorem(120)
+      let data = ((10, "Male"), (20, "Female"), (15, "Divers"), (2, "Other"))
+      let pl = plot(data: data)
+      pie_chart(pl, (100%, 20%), display_style: "hor-chart-legend")
+      lorem(400)
+    }
   ]
 }
+
 #{
   test_1()
   test_2()
   test_3()
   test_4()
+  paper_test()
+  
 }
 // TODO:
 // fix points when choosing rounding in graph plot

@@ -17,7 +17,6 @@
       width = if type(width) == "ratio" {100%} else {width}
       height = if type(height) == "ratio" {100% - capt_dist} else {height}
       set align(left + bottom)
-      v(height)
       plot_code(width, height, capt_dist)
       v(capt_dist)
     }
