@@ -22,7 +22,8 @@
 // helper_line_color: the color of the helper line
 // marking_length: the length of a marking in absolute size
 // marking_number_distance: the distance between the marker and the number
-#let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt) = {
+// title: the display name of the axis
+#let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt, title: []) = {
   let axis_data = (
     min: min,
     max: max,
@@ -41,15 +42,57 @@
     helper_line_color: helper_line_color,
     marking_length: marking_length,
     marking_number_distance: marking_number_distance,
+    title: title,
     values: values
   )
-
+  
   if values.len() == 0 {
     axis_data.values = range(min, max, step: step)
   }
 
   return axis_data
   
+}
+
+// returns true if and only if the axis is on the left or right, false if top or bottom, panics otherwise
+// axis: the axis
+#let is_vertical(axis) = {
+  if axis.location == "left" or axis.location == "right" {return true}
+  if axis.location == "top" or axis.location == "bottom" {return false}
+  panic("axis location wrong")
+}
+
+// returns the expected need of space as a (width, height) array
+// axis: the axis
+// style: styling
+#let measure_axis(axis, style) = {
+  let invert_markings = 1
+  if axis.location == "right" {
+    invert_markings = -1
+  }
+  if axis.location == "top" {
+    invert_markings = -1
+  }
+  
+  let dist = if axis.invert_markings {axis.marking_length + axis.marking_number_distance} else {axis.marking_number_distance}
+  let inversion = if axis.invert_markings == -1 {dist * 2 + size.width} else {0pt}
+
+  let title_extra = measure(axis.title, style).height
+
+  let sizes = axis.values.map(it => {
+    let size = measure([#it], style)
+    if is_vertical(axis) {
+      return size.width
+    } else {
+      return size.height
+    }
+  })
+  let size = calc.max(..sizes) + inversion + 2 * dist + title_extra
+  if is_vertical(axis) {
+    return (size, 0pt)
+  } else {
+    return (0pt, size)
+  }
 }
 
 //------------------------------
@@ -59,31 +102,40 @@
 // axis: the axis to draw
 // length: the length of the axis (mostly gotten from the plot code function; see util.typ, prepare_plot())
 // pos: the position offset as an array(x, y)
-// length_offset: the distance between caption and plot. (mostly gotten from the plot code function; see util.typ, prepare_plot())
-#let draw_axis(axis, length: 200pt, pos: (0pt, 0pt), length_offset: 20pt) = {
+#let draw_axis(axis, length: 100%, pos: (0pt, 0pt)) = {
     
     let step_length = length / axis.values.len()
     let invert_markings = 1
     let user_invert_markings = if axis.invert_markings {-1} else {1}
     // Changes point of reference if top or right is chosen
     if axis.location == "right" {
-      pos.at(0) += length + if type(length) == "relative length" {length_offset} else {0pt}
+      pos.at(0) = length - pos.at(0)
       invert_markings = -1
     }
     if axis.location == "top" {
-      pos.at(1) -= length - if type(length) == "ratio" {length_offset} else {0pt}
+      pos.at(1) = -length + pos.at(1)
       invert_markings = -1
     }
     
-    if axis.location == "left" or axis.location == "right" {
+    if is_vertical(axis) {
       // Places the axis line
       place(dx: pos.at(0), dy: pos.at(1), line(angle: -90deg, length: length, stroke: axis.stroke))
+      // Places the title
+      //place(dy: -50%, rotate(-90deg, axis.title)) // TODO
+      style(style => {
+        let a = measure_axis(axis, style).at(0)
+        if axis.location == "left" {
+          place(dy: pos.at(1) - length / 2, dx: -length/2 - a, rotate(-90deg, origin: center + top, box(width: length, height:0pt, align(center+top, axis.title))))
+        } else {
+          place(dy: pos.at(1) - length / 2, dx: length/2 +a, rotate(-90deg, origin: center + top, box(width: length, height:0pt, align(center+bottom, axis.title))))
+        }
+      })
 
       // Draws step markings
       for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
         // Draw helper lines:
         if axis.helper_lines {
-          place(dx: pos.at(0), dy: pos.at(1) - step_length * step, line(angle: 0deg, length: 100% * invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
+          place(dx: pos.at(0), dy: pos.at(1) - step_length * step, line(angle: 0deg, length: length * invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
         }
         
         // Draw markings
@@ -97,20 +149,31 @@
             let size = measure([#number], styles)
             let dist = if axis.invert_markings {axis.marking_length + axis.marking_number_distance} else {axis.marking_number_distance}
             let inversion = if invert_markings == -1 {dist * 2 + size.width} else {0pt}
-            place(dx: pos.at(0) - dist - size.width + inversion, dy: pos.at(1) - step_length * step - 4pt)[#set text(fill: axis.value_color);#number]
+            place(dx: pos.at(0) - dist - size.width + inversion, dy: pos.at(1) - step_length * step - 4pt, text(fill: axis.value_color, [#number]))
           })
         }
       }
 
-    } else if axis.location == "top" or axis.location == "bottom" {
+    } else {
       // Places the axis line
       place(dx: pos.at(0), dy: pos.at(1), line(angle: 0deg, length: length, stroke: axis.stroke))
 
+      // Places the title
+      //place(dx: 50%, align(bottom + center, box(width:0pt, height: 0pt, axis.title))) // TODO willbreak
+      if axis.location == "bottom" {
+        place(dx: pos.at(0), dy: 3pt, align(top + center, box(width: length, height: 0pt, [\ #axis.title])))
+      } else {
+        style(style => {
+          let a = measure_axis(axis, style).at(1)
+          layout(size => place(dy: -size.height - a, align(top + center, box(width: length, height: 0pt, [#axis.title]))))
+        })
+      }
+      
       // Draws step markings
       for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
         // Draw helper lines:
         if axis.helper_lines {
-          place(dx: pos.at(0) + step_length * step, dy: pos.at(1), line(angle: 90deg, length: (100% - length_offset) * -invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
+          place(dx: pos.at(0) + step_length * step, dy: pos.at(1), line(angle: 90deg, length: length * -invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
         }
 
         // Draw markings
@@ -129,7 +192,7 @@
           })
         }
       }
-    } else { panic("axis location wrong") }
+    }
 }
 
 // ------------------------

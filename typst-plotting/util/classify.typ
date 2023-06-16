@@ -1,3 +1,5 @@
+#import "util.typ": *
+
 //-----------------
 //THIS FILE CONTAINS EVERYTHING TO CLASSIFY DATA
 //-----------------
@@ -41,6 +43,7 @@
 // compare: the method used for comparing. Looks like this: compare(val1, val2)
 //          returns: val1 < val2: -1; val1 > val2: 1; val1 == val2: 0
 #let classify(data, classes, compare: compare) = {
+  let data = transform_data_full(data)
   let classes = if "lower_lim" in classes {(classes,)} else {classes}
   for (idx, class) in classes.enumerate() {
     for value in data {
