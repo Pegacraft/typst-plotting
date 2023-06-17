@@ -3,9 +3,21 @@
 #import "util/util.typ": *
 #import calc: *
 
-// Creates a data representation of a plot
-// axes: a list of axes needed for drawing the plot (most likely and x and a y axis)
-// data: the data that should be mapped onto the plot. The format depends on the plot type
+/// The constructor function for a plot. This combines the `data` with the `axes` you need to display a graph/plot. The exact structure of `axes` and `data` varies from the visual representation you choose. An exact specification of how these have to look will be found there.
+/// === Examples
+/// This is how your plot initialisation will look most of the time:
+/// ```typc
+/// let x_axis = axis(…)
+/// let y_axis = axis(…)
+/// let data = (…)
+/// let pl = plot(axes: (x_axis, y_axis), data: data) ``` \
+/// How your plot initialisation would look for a _pie chart_:
+/// ```typc
+/// let data = (…)
+/// let pl = plot(data: data)``` \
+/// This is a lot simpler ans a _pie chart_ doesn't require any axes. \ \
+/// - axes (axis): A list of axes needed for drawing the plot (most likely a x- and y-axis)
+/// - data (array): The data that should be mapped onto the plot. The format depends on the plot type
 #let plot(axes: (), data: ()) = {
   let plot_data = (
     axes: axes,
@@ -14,18 +26,26 @@
   return plot_data
 }
 
-// Displayes a scatter plot if possible
-//---
-// The plot needs to look something like this:
-// axis: two axes. One working as the x axis, the other as the y axis
-// data: a tuple of x and y pairs
-//---
-// size: the size as array of (width, height) or as a single value for width and height
-// caption: name of the figure
-// stroke: the stroke color of the dots
-// fill: the fill color of the dots
-// caption_distance: the distance between the plot and the caption
-#let scatter_plot(plot, size, caption: "Scatter Plot", stroke: black, fill: none) = {
+/// This function will display a scatter plot based on the provided `plot` object. 
+/// === How to create a simple scatter plot
+/// First, we need to define the data we want to map to the scatter plot. In this case I will use some random sample data. \
+/// ```typc let data = ((0, 0), (1, 2), (2, 4), (3, 6), (4, 8), (5, 3), (6, 6),(7, 9),(11, 12))``` \ \
+/// Next, we need to define both the x and the y-axis. The x-axis location can either be `"bottom"` or `"top"`. The y-axis location can either be `"left"` or `"right"`. You can customise the look of the axes with `axis` specific parameters (here: `helper_lines: true`)\
+/// ```typc let x_axis = axis(min: 0, max: 11, step: 1, location: "bottom")
+/// let y_axis = axis(min: 0, max: 13, step: 2, location: "left", helper_lines: true)```
+/// Now we need to create a `plot` object based on the axes and the data. \
+/// ```typc let pl = plot(axes: (x_axis, y_axis), data: data) ```
+/// 
+/// Last, we need to just call this function. In this case the width of the plot will be `100%` and the height will be `33%`. \
+/// ```typc scatter_plot(pl, (100%, 33%))``` \ \
+/// - plot (plot): The format of the plot variables are as follows: \
+///   - `axes:` Two axes are required. The first one as the x-axis, the second as the y-axis. \ _Example:_ `(x_axis, y_axis)`
+///   - `data:` An array of `x` and `y` pairs. \ _Example:_ `((0, 0), (1, 2), (2, 4), …)`
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+/// - caption (content): The name of the figure
+/// - stroke (color): The stroke color of the dots
+/// - fill (color): The fill color of the dots
+#let scatter_plot(plot, size, caption: [Scatter Plot], stroke: black, fill: none) = {
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   // The code rendering the plot
@@ -48,19 +68,26 @@
   prepare_plot(size, caption, plot_code, plot: plot)
 }
 
-// Displayes a graph plot if possible
-//---
-// The plot needs to look something like this:
-// axis: two axes. One working as the x axis, the other as the y axis
-// data: a tuple of x and y pairs
-//---
-// size: the size as array of (width, height) or as a single value for width and height
-// caption: name of the figure
-// rounding: amount of rounded edges, ideally between 0 and 100%
-// stroke: the stroke color of the line
-// fill: the fill color of the line
-// caption_distance: the distance between the plot and the caption
-#let graph_plot(plot, size, caption: "Graph Plot", rounding: 0%, stroke: black, fill: none, caption_distance: 20pt) = {
+/// This function will display a graph plot based on the provided `plot` object. It functions like the _scatter plot_ but connects the dots with lines.
+/// === How to create a simple graph plot
+/// First, we need to define the data we want to map to the graph plot. In this case I will use some random sample data. \
+/// ```typc let data = ((0, 0), (1, 2), (2, 4), (3, 6), (4, 8), (5, 3), (6, 6),(7, 9),(11, 12))``` \ \
+/// Next, we need to define both the x and the y-axis. The x-axis location can either be `"bottom"` or `"top"`. The y-axis location can either be `"left"` or `"right"`. You can customise the look of the axes with `axis` specific parameters (here: `helper_lines: true`)
+/// ```typc let x_axis = axis(min: 0, max: 11, step: 1, location: "bottom")
+/// let y_axis = axis(min: 0, max: 13, step: 2, location: "left", helper_lines: true)```
+/// Now we need to create a `plot` object based on the axes and the data. \
+/// ```typc let pl = plot(axes: (x_axis, y_axis), data: data) ```\ \
+/// Last, we need to just call this function. In this case the width of the plot will be `100%` and the height will be `33%`. \
+/// ```typc graph_plot(pl, (100%, 33%))``` \ \
+/// - plot (plot): The format of the plot variables are as follows: \
+///   - `axes:` Two axes are required. The first one as the x-axis, the second as the y-axis. \ _Example:_ `(x_axis, y_axis)`
+///   - `data:` An array of `x` and `y` pairs. \ _Example:_ `((0, 0), (1, 2), (2, 4), …)`
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+/// - caption (content): The name of the figure
+/// - rounding (ratio): The rounding of the graph, 0% means sharp edges, 100% will make it as smooth as possible (Bézier)
+/// - stroke (color): The stroke color of the graph
+/// - fill (color): The fill color for the graph. Can be used to display the area beneath the graph.
+#let graph_plot(plot, size, caption: "Graph Plot", rounding: 0%, stroke: black, fill: none) = {
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   let plot_code() = {
@@ -94,17 +121,36 @@
   prepare_plot(size, caption, plot_code, plot: plot)
 }
 
-// Displayes a histogram if possible
-//---
-// The plot needs to look something like this:
-// axis: two axes. One working as the x axis, the other as the y axis
-// data: a list of classes filled with data (see classify.typ)
-//---
-// size: the size as array of (width, height) or as a single value for width and height
-// caption: name of the figure
-// stroke: the stroke color of a bar
-// fill: the fill color of a bar
-#let histogram(plot, size, caption: "Histogram", stroke: black, fill: gray) = {
+/// This function will display a histogram based on the provided `plot` object. \ \
+/// === How to create a simple histogram
+/// First, we need to define the data and the classes we want to map to the graph plot. In this case I will use some random sample data. \ The tricky part about this is, that this data gets represented in `classes`. These are necessary to combine the data the right way, so the bars height can be displayed correctly. \ Here, I will use the same class size every time but once. \ \
+/// Let's create the data now:
+/// ```typc let data = (
+///     18000, 18000, 18000, 18000, 18000, 18000, 18000, 18000, 18000, 18000, 
+///     28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 28000, 
+///    35000, 46000, 75000, 95000
+/// ) ``` \
+/// Now, we will define the classes. To do this we can use the `class_generator(start, end, amount)` and the `class(lower_lim, upper_lim) `function (_see `classify.typ`_)
+/// ```typc let classes = class_generator(10000, 50000, 4)
+/// classes.push(class(50000, 100000))  
+/// classes = classify(data, classes)```
+/// This will result in creating the following classes: `(10000 - 20000, 20000 - 30000, 30000 - 40000, 40000 - 50000, 50000 - 100000)`. \ \
+/// Next, we need to define both the x and the y-axis. The x-axis location can either be `"bottom"` or `"top"`. The y-axis location can either be `"left"` or `"right"`. You can customise the look of the axes with `axis` specific parameters (here: `show_markings: true` and `helper_lines: true`)
+/// ```typc let x_axis = axis(min: 0, max: 100000, step: 20000, location: "bottom", show_markings: false)
+/// let y_axis = axis(min: 0, max: 26, step: 3, location: "left", helper_lines: true)``` \
+/// Now we need to create a `plot` object based on the axes and the data. \
+/// ```typc let pl = plot(axes: (x_axis, y_axis), data: data) ``` \ \
+/// Last, we just need to call this function. Here we render the histogram with a black outline around the bars, and a gray filling of the bars. \
+/// ```typc histogram(pl, (100%, 20%), stroke: black, fill: gray) ``` \ \
+///
+/// - plot (plot): The format of the plot variables are as follows: \
+///   - `axes:` Two axes are required. The first one as the x-axis, the second as the y-axis. \ _Example:_ `(x_axis, y_axis)`
+///   - `data:` An array of `x` and `y` pairs. \ _Example:_ `((0, 0), (1, 2), (2, 4), …)`
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+/// - caption (content): The name of the figure
+/// - stroke (color, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
+/// - fill (color, array): The fill color of a bar or an `array` of colors, where every entry stands for the fill color of one bar
+#let histogram(plot, size, caption: [Histogram], stroke: black, fill: gray) = {
   // Get the relevant axes:
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
@@ -161,19 +207,27 @@
 }
 
 
-// Displayes a pie chart if possible
-//---
-// The plot needs to look something like this:
-// data: a list of 1 dimensional data or a tuple with (amount of occurance, value)
-//---
-// size: the size as array of (width, height) or as a single value for width and height
-// caption: name of the figure
-// stroke: the stroke color of the dots
-// fill: the fill color of the dots
-// display-style: changes the style of the chart. Available are: "vert-chart-legend", "hor-chart-legend", "vert-legend-chart", "hor-legend-chart", "legend-inside-chart"
-// colors: the colors used in the pie chart. when more data is there, than colors, the colors get repeated
-// offset: the distance from the center to the text in the chart (only relevant when using "legend-inside-chart")
-#let pie_chart(plot, size, caption: "Pie chart", stroke: black, fill: none, display_style: "hor-chart-legend", colors: (red, blue, green, yellow, purple, orange), offset: 50%) = {
+/// This function will display a pie chart based on the provided `plot` object. \ \
+/// === How to create a simple pie chart
+/// This is the easiest diagram to create. First we need to specify the data. I will use random data here. \
+/// ```typc let data = ((10, "Male"), (20, "Female"), (15, "Divers"), (2, "Other")) ``` \ \
+/// Because no axes are required, we can skip this step and jump straight to creating the `plot`.
+/// ```typc let p = plot(data: data) ``` \ \
+/// Last, we just need to call this function. I will call it with all styles available.
+/// ```typc pie_chart(p, (100%, 20%), display_style: "legend-inside-chart")
+/// pie_chart(p, (100%, 20%), display_style: "hor-chart-legend")
+/// pie_chart(p, (100%, 20%), display_style: "hor-legend-chart")
+/// pie_chart(p, (100%, 20%), display_style: "vert-chart-legend")
+/// pie_chart(p, (100%, 20%), display_style: "vert-legend-chart")``` \
+/// - plot (plot): The format of the plot variables are as follows: \
+///   - `axes:` No axes are required.
+///   - `data:` An array of single values or an array of `(amount, value)` tuples. \ _Example:_ `((10, "Male"), (5, "Female"), (2, "Divers"), …)` or `("Male", "Male", "Male", "Female", "Female", "Divers", "Divers", …)`
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+/// - caption (content): The name of the figure
+/// - display_style (string): Changes the style of the pie chart. Available are: `"vert-chart-legend", "hor-chart-legend", "vert-legend-chart", "hor-legend-chart", "legend-inside-chart"`.
+/// - colors (array): The colors used in the pie chart. If not enough colors were specified, the colors get repeated.
+/// - offset (length): The distance from the center to the text in the pie chart (only relevant when using `"legend-inside-chart"`)
+#let pie_chart(plot, size, caption: [Pie chart], display_style: "hor-chart-legend", colors: (red, blue, green, yellow, purple, orange), offset: 50%) = {
   // get a point on a radius 1 circle 
   //---
   // x: travelled distance around circle
@@ -292,21 +346,31 @@
   prepare_plot(size, caption, plot_code)
 }
 
-// Displayes a histogram if possible
-//---
-// The plot needs to look something like this:
-// axis: two axes. One working as the x axis, the other as the y axis
-// data: either 1. A list looking like this (val1, val2, val3, ...)
-//              2. A list looking like this ((amount, value), (amount, value)...)
-//---
-// size: the size as array of (width, height) or as a single value for width and height
-// caption: name of the figure
-// stroke: the stroke color of a bar
-// fill: the fill color of a bar
-// centered_bars: if the bars should be on the number its corresponding to (default: true)
-// bar_width: how thick the bars should be in percent. (default: 100%)
-// rotated: if the bars should grow on the "x_axis" - this means the data gets mapped to the y axis - create the axis accordingly
-#let barchart(plot, size, caption: "Barchart", stroke: black, fill: gray, centered_bars: true, bar_width: 100%, rotated: false) = {
+/// This function will display a bar chart based on the provided `plot` object. \ \
+/// === How to create a simple bar chart
+/// First we need to specify the data, we want to display. I will use some random data here.\
+/// ```typc let data = ((20, 2), (30, 3), (16, 4), (40, 6), (5, 7))``` \ \
+/// Next we need to create the axes. Keep in mind that, if you want to make the bars go from left to right, not bottom to top, you need to basically invert the x and y-axis creation. You can also customise the axes (here: `show_markings: true` and `helper_lines: true`).
+/// ```typc let x_axis = axis(min: 0, max: 9, step: 1, location: "bottom")
+/// let y_axis = axis(min: 0, max: 41, step: 10, location: "left", show_markings: true, helper_lines: true)```
+/// When `rotated: true`, in other words the bars grow from left to right, the axis creation looks like this:
+/// ```typc let x_axis = axis(min: 0, max: 41, step: 10, location: "bottom", show_markings: true, helper_lines: true)
+/// let y_axis = axis(min: 0, max: 9, step: 1, location: "left")``` \
+/// Now we need to create the `plot` object. \
+/// ```typc let pl = plot(axes: (x_axis, y_axis), data: data)``` \ \
+/// Last, we just call this function to display the chart. We specify fill colors for every single bar to make it easier to differenciate and we make the bars 30% smaller to create small gaps between bars close to each other. \
+/// ```typc bar_chart(pl, (100%, 120pt), fill: (purple, blue, red, green, yellow), bar_width: 70%)``` \ \
+/// - plot (plot): The format of the plot variables are as follows: \
+///   - `axes:` Two axes are required. The first one as the x-axis, the second as the y-axis. \ _Example:_ `(x_axis, y_axis)`
+///   - `data:` An array of single values or an array of `(amount, value)` tuples. \ _Example:_ `((10, "Male"), (5, "Female"), (2, "Divers"), …)` or `("Male", "Male", "Male", "Female", "Female", "Divers", "Divers", …)`
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+/// - caption (content): The name of the figure
+/// - stroke (color, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
+/// - fill (color, array): The fill color of a bar or an `array` of colors, where every entry stands for the fill color of one bar
+/// - centered_bars (boolean): If the bars should be on the number its corresponding to
+/// - bar_width (ratio): how thick the bars should be in percent. (default: 100%)
+/// - rotated (boolean): If the bars should grow on the `x_axis` - this means the data gets mapped to the `y-axis`. Don't forget to create the axes accordingly.
+#let bar_chart(plot, size, caption: "Barchart", stroke: black, fill: gray, centered_bars: true, bar_width: 100%, rotated: false) = {
   // Get the relevant axes:
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)

@@ -3,26 +3,50 @@
 //------------------
 
 
-// Data representation of the axes
-// min: start of the axis
-// max: end of the axis (exclusive)
-// step: the steps the axis should take per section
-// values: the values of the markings (if set manually the first three arguments should be unchanged)
-// location: the position of the axis. Valid are: "top", "bottom", "left", "right"
-// show_values: if the values should be displayed
-// show_markings: if the markings should be displayed
-// invert_markings: if the markins should point away from the data
-// marking_offset_left: amount of hidden markings from the left or bottom
-// marking_offset_right: amount of hidden markings from the right or top
-// stroke: the color of the baseline for the axis
-// marking_color: the color of the marking
-// value_color: the color of a value
-// heler_lines: if helper lines (to see better alignment of data) should be displayed
-// helper_line_style: the style of the helper lines, options are: "solid", "dotted", "densely-dotted", "loosely-dotted", "dashed", "densely-dashed", "loosely-dashed", "dash-dotted", "densely-dash-dotted" or "loosely-dash-dotted"
-// helper_line_color: the color of the helper line
-// marking_length: the length of a marking in absolute size
-// marking_number_distance: the distance between the marker and the number
-// title: the display name of the axis
+/// This is the constructor function for creating axes. Most plots/graphs will require axes to function. \ \
+/// === Basics
+/// The most important parameters are `min`, `max`, `step` and `location`. These need most likely be changed for a functioning axis. If `min`, `max` and `step` are set, the `values` parameter will automatically be filled with the correct values. \
+/// _Example:_ \
+/// ```js let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")``` \
+/// will cause `values` to look like this: \
+/// `(0, 2, 4, 6, 8, 10)` \ \
+/// If you want to specify your own values, for example when using text on an axis, you need to specify `values` by yourself. Custom specified values could look like this `("", "male", "female", "divers", "unknown")` (the first empty string is not neccessary, but will make some graphs/plots look a lot better). \ \
+/// You can obviously do a lot more than just this, so I recommend taking a look at the examples. \ \
+/// === Examples
+/// An x-axis for different genders:
+/// ```typc
+/// let gender_axis_x = axis(
+///     values: ("", "m", "w", "d"), 
+///     location: "bottom", 
+///     helper_lines: true, 
+///     invert_markings: false, 
+///     title: "Gender"
+/// )
+/// ``` \
+/// A y-axis displaying ascending numbers: \
+/// ```typc
+/// let y_axis_2 = axis(min: 0, max: 41, step: 10, 
+///   location: "left", show_markings: true, helper_lines: true)```
+///
+/// - min (integer): From where `values` should started generating (inclusive)
+/// - max (integer): Where `values` should stopped being generated (exclusive)
+/// - step (integer): The steps that should be taken when generating `values`
+/// - values (array): The values of the markings (exclusive with `min`,#sym.space `max` and `step`)
+/// - location (string): The position of the axis. Only valid options are: `"top", "bottom", "left", "right"`
+/// - show_values (boolean): If the values should be displayed
+/// - show_markings (boolean): If the markings should be displayed
+/// - invert_markings (boolean): If the markins should point away from the data (outwards)
+/// - marking_offset_left (integer): Amount of hidden markings from the left or bottom
+/// - marking_offset_right (integer): Amount of hidden markings from the right or top
+/// - stroke (length, color, dictionary, stroke): The color of the baseline for the axis
+/// - marking_color (color): The color of the marking
+/// - value_color (color): The color of a value
+/// - helper_lines (boolean): If helper lines (to see better alignment of data) should be displayed
+/// - helper_line_style (string): The style of the helper lines, valid options are: `"solid", "dotted", "densely-dotted", "loosely-dotted", "dashed", "densely-dashed", "loosely-dashed", "dash-dotted", "densely-dash-dotted", "loosely-dash-dotted"`
+/// - helper_line_color (color): The color of the helper line
+/// - marking_length (length): The length of a marking in absolute size
+/// - marking_number_distance (length): The distance between the marker and the number
+/// - title (content): The display name of the axis
 #let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt, title: []) = {
   let axis_data = (
     min: min,
