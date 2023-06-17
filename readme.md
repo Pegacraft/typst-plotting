@@ -5,11 +5,13 @@ Made by Gewi413 and Pegacraffft
 
 ## Currently supported graphs
 
-- Scatter Plots
+- Scatter plots
 
-- Line Charts
+- Graph charts
 
 - Histograms
+
+- Bar charts
 
 - Pie charts
 
@@ -17,4 +19,27 @@ Made by Gewi413 and Pegacraffft
 
 ## How to use
 
-A more detailed documentation will follow later. If you still want to use it, see the "main.typ" file for some examples. You can also read the code comments above the functions to get a better understanding of the parameters used in the function.
+The documentation is found in the `docs.pdf`. It contains all functions necessary to use this library.
+If you need some example code, check out `main.typ`.
+
+## Images
+
+### Scatter plots
+
+![scatter](.\images\scatter.png)
+
+### Graph charts
+
+![graph](.\images\graph.png)
+
+### Histograms
+
+![histogram](.\images\histogram.png)
+
+### Bar charts
+
+![bar](.\images\bar.png)
+
+### Pie charts
+
+![pie](.\images\pie.png)
