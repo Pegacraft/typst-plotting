@@ -19,8 +19,9 @@ Made by Gewi413 and Pegacraffft
 
 ## How to use
 
-The documentation is found in the `docs.pdf`. It contains all functions necessary to use this library.
-If you need some example code, check out `main.typ`.
+The documentation is found in the [Docs.pdf](https://github.com/Pegacraft/typst-plotting/blob/master/Docs.pdf). It contains all functions necessary to use this library.
+
+If you need some example code, check out [main.typ](https://github.com/Pegacraft/typst-plotting/blob/master/main.typ).
 
 ## Images
 
