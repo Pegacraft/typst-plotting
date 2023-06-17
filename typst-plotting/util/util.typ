@@ -1,4 +1,4 @@
-
+#import "/typst-plotting/axis.typ": *
 
 // Prepares everything for a plot and executes the function that draws a plot. Supplies it with width and height
 // size: the size of the plot either as array(width, height) or length
@@ -9,12 +9,45 @@
 // height: the height of the plot
 // the plot code: a function that needs to look accept 2 parameters (width, height)
 //-------
-#let prepare_plot(size, caption, plot_code) = {
+#let prepare_plot(size, caption, plot_code, plot: ()) = {
   let (width, height) = if type(size) == "array" {size} else {(size, size)}
   figure(caption: caption, supplement: "Graph", kind: "plot")[
     // Graph box
     #set align(left + bottom)
-    #box(width: width, height: height, fill: none, plot_code())
+    #box(width: width, height: height, fill: none, if plot == () {plot_code()} else {
+      style(style => {
+      let widths = 0pt
+      let heights = 0pt
+      // Draw coordinate system
+      for axis in plot.axes {
+        let (w,h) = measure_axis(axis, style)
+        widths += w
+        heights += h
+      }
+      
+      let x_axis = plot.axes.filter(it => not is_vertical(it)).first()
+      let y_axis = plot.axes.filter(it => is_vertical(it)).first()
+      
+      let offset_y = 0pt
+      let offset_x = 0pt
+      if x_axis.location == "bottom" {
+        offset_y = -heights
+      }
+      if y_axis.location == "left" {
+        offset_x = widths
+      }
+      place(dx: offset_x, dy: -100% + heights+offset_y, box(width: 100% - widths, height: 100% - heights, {
+        for axis in plot.axes {
+          if(is_vertical(axis)) {
+            draw_axis(axis)
+          } else {
+            draw_axis(axis)
+          }
+        }
+        plot_code()
+      }))
+    })
+    })
   ]
 }
 
@@ -59,7 +92,7 @@
      }
    }
    if not found {
-      bin_count.push((1, data))
+      new_data.push((1, data)) //?
    }
   }
   return new_data

@@ -39,7 +39,7 @@
   let x_axis = axis(min: 0, max: 100000, step: 10000, location: "bottom")
   let y_axis = axis(min: 0, max: 31, step: 5, location: "left", helper_lines: true)
   let pl = plot(data: classes, axes: (x_axis, y_axis))
-  histogram(pl, 100%, stroke: black)
+  histogram(pl, 100%, stroke: black, fill: (purple, blue, red, green, yellow))
 }
 
 #let test_4() = {
@@ -64,7 +64,7 @@
     #set align(left)
     #show: r => columns(2, r)
     #lorem(100)
-    == First sub topic
+    == Scatter plots
     #lorem(50)
     #{
       let data = (
@@ -75,7 +75,7 @@
       let p = plot(data: data, axes: (x_axis, y_axis))
       scatter_plot(p, (100%, 20%))
     }
-    == Second sub topic
+    == Histograms
     #lorem(150)
     #{
       let data = (
@@ -89,10 +89,10 @@
       
       let y_axis = axis(min: 0, max: 26, step: 3, location: "left", helper_lines: true, title: "Wert y und anderes Zeug", )
       let pl = plot(data: classes, axes: (x_axis, y_axis))
-      histogram(pl, (100%, 20%), stroke: black)
+      histogram(pl, (100%, 20%), stroke: black, fill: gray)
     }
 
-    == Third sub topic
+    == Pie charts
     #{
       lorem(120)
       let data = ((10, "Male"), (20, "Female"), (15, "Divers"), (2, "Other"))
@@ -103,7 +103,26 @@
       let data = ((5, "0-18"), (9, "18-30"), (25, "30-60"), (7, "60+"))
       let pl = plot(data: data)
       pie_chart(pl, (100%, 20%), display_style: "hor-chart-legend")
-      lorem(400)
+      lorem(200)
+    }
+    == Bar charts
+    #{
+      lorem(50)
+      let data = ((10, "Monday"), (5, "Tuesday"), (15, "Wednesday"), (9, "Thursday"), (11, "Friday"))
+
+      let y_axis = axis(values: ("", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), location: "left", show_markings: true)
+      let x_axis = axis(min: 0, max: 20, step: 2, location: "bottom", helper_lines: true, title: "Visitors")
+
+      let pl = plot(axes: (x_axis, y_axis), data: data)
+      barchart(pl, (100%, 140pt), fill: (purple, blue, red, green, yellow), bar_width: 70%, rotated: true)
+
+      let data_2 = ((20, 2), (30, 3), (16, 4), (40, 6), (5, 7))
+      let y_axis_2 = axis(min: 0, max: 41, step: 10, location: "left", show_markings: true, helper_lines: true)
+      let x_axis_2 = axis(min: 0, max: 9, step: 1, location: "bottom")
+      let pl_2 = plot(axes: (x_axis_2, y_axis_2), data: data_2)
+      barchart(pl_2, (100%, 120pt), fill: (purple, blue, red, green, yellow), bar_width: 70%)
+
+      lorem(95)
     }
   ]
 }
@@ -127,12 +146,30 @@
   histogram(pl, 100%)
 }
 
+
+#let test_6() = {
+  let data = ((10, "Monday"), (5, "Tuesday"), (15, "Wednesday"), (9, "Thursday"), (11, "Friday"))
+
+  let y_axis = axis(values: ("", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), location: "left", show_markings: true)
+  let x_axis = axis(min: 0, max: 20, step: 2, location: "bottom", helper_lines: true)
+
+  let pl = plot(axes: (x_axis, y_axis), data: data)
+  barchart(pl, (100%, 33%), fill: (purple, blue, red, green, yellow), bar_width: 70%, rotated: true)
+
+  let data_2 = ((20, 2), (30, 7), (16, 12), (40, 13), (5, 17))
+  let y_axis_2 = axis(min: 0, max: 41, step: 5, location: "left", show_markings: true, helper_lines: true)
+  let x_axis_2 = axis(min: 0, max: 21, step: 1, location: "bottom")
+  let pl_2 = plot(axes: (x_axis_2, y_axis_2), data: data_2)
+  barchart(pl_2, (100%, 60%), fill: (purple, blue, red, green, yellow), bar_width: 70%)
+}
+
 #{
   test_1()
   test_2()
   test_3()
   test_4()
   test_5()
+  test_6()
 
   paper_test()
 }

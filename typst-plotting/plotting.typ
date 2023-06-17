@@ -26,56 +26,26 @@
 // fill: the fill color of the dots
 // caption_distance: the distance between the plot and the caption
 #let scatter_plot(plot, size, caption: "Scatter Plot", stroke: black, fill: none) = {
+  let x_axis = plot.axes.at(0)
+  let y_axis = plot.axes.at(1)
   // The code rendering the plot
   let plot_code() = {
-    style(style => {
-      let widths = 0pt
-      let heights = 0pt
-      // Draw coordinate system
-      for axis in plot.axes {
-        let (w,h) = measure_axis(axis, style)
-        widths += w
-        heights += h
+    let step_size_x = calc_step_size(100%, x_axis)
+    let step_size_y = calc_step_size(100%, y_axis)
+      // Places the data points
+    for (x,y) in plot.data {
+      if type(x) == "string" {
+        x = x_axis.values.position(c => c == x)
       }
-      
-      let x_axis = plot.axes.filter(it => not is_vertical(it)).first()
-      let y_axis = plot.axes.filter(it => is_vertical(it)).first()
-      let offset_y = 0pt
-      let offset_x = 0pt
-      if x_axis.location == "bottom" {
-        offset_y = -heights
+      if type(y) == "string" {
+        y = y_axis.values.position(c => c == y)
       }
-      if y_axis.location == "left" {
-        offset_x = widths
+      place(dx: (x - x_axis.min) * step_size_x - 1pt, dy: -(y - y_axis.min) * step_size_y - 1pt, square(width: 2pt, height: 2pt, fill: fill, stroke: stroke))
       }
-      
-      place(dx: offset_x, dy: -100%+heights+offset_y, box(width: 100% - widths, height: 100% - heights, {
-        for axis in plot.axes {
-          if(is_vertical(axis)) {
-            draw_axis(axis)
-          } else {
-            draw_axis(axis)
-          }
-        }
-      
-        let step_size_x = calc_step_size(100%, x_axis)
-        let step_size_y = calc_step_size(100%, y_axis)
-          // Places the data points
-          for (x,y) in plot.data {
-            if type(x) == type("") {
-              x = x_axis.values.position(c => c == x)
-            }
-            if type(y) == type("") {
-              y = y_axis.values.position(c => c == y)
-            }
-            place(dx: (x - x_axis.min) * step_size_x - 1pt, dy: -(y - y_axis.min) * step_size_y - 1pt, square(width: 2pt, height: 2pt, fill: fill, stroke: stroke))
-        }
-      }))
-    })
   }
 
   // Sets outline for a plot and defines width and height and executes the plot code
-  prepare_plot(size, caption, plot_code)
+  prepare_plot(size, caption, plot_code, plot: plot)
 }
 
 // Displayes a graph plot if possible
@@ -94,57 +64,34 @@
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   let plot_code() = {
-    style(style => {
-      let widths = 0pt
-      let heights = 0pt
-      // Draw coordinate system
-      for axis in plot.axes {
-        let (w,h) = measure_axis(axis, style)
-        widths += w
-        heights += h
+    let step_size_x = calc_step_size(100%, x_axis)
+    let step_size_y = calc_step_size(100%, y_axis)
+    // Places the data points
+    let data = plot.data.map(data => { ((data.at(0) - x_axis.min) * step_size_x, -(data.at(1) - y_axis.min) * step_size_y - 1pt) })
+    let delta = ()
+    let rounding = rounding * -1
+    for i in range(data.len()) {
+      let curr = data.at(i)
+      let next
+      let prev
+      if i != data.len() - 1 { next = data.at(i + 1) }
+      if i != 0 { prev = data.at(i - 1) }
+      if i == 0 {  
+        delta.push((rounding * (next.at(0) - curr.at(0)), rounding * (next.at(1) - curr.at(1))))
+      } else if i == data.len() - 1 {
+        delta.push((rounding * (curr.at(0) - prev.at(0)), rounding * (curr.at(1) - prev.at(1))))
+      } else {
+        delta.push((rounding * .5 * (next.at(0) - prev.at(0)), rounding * .5 * (next.at(1) - prev.at(1))))
       }
-      
-      let x_axis = plot.axes.filter(it => not is_vertical(it)).first()
-      let y_axis = plot.axes.filter(it => is_vertical(it)).first()
-      
-      place(dx: widths, dy: -100%, box(width: 100% - widths, height: 100%-heights, {
-        for axis in plot.axes {
-          if(is_vertical(axis)) {
-            draw_axis(axis)
-          } else {
-            draw_axis(axis)
-          }
-        }
-        let step_size_x = calc_step_size(100%, x_axis)
-        let step_size_y = calc_step_size(100%, y_axis)
-        // Places the data points
-        let data = plot.data.map(data => { ((data.at(0) - x_axis.min) * step_size_x, -(data.at(1) - y_axis.min) * step_size_y - 1pt) })
-        let delta = ()
-        let rounding = rounding * -1
-        for i in range(data.len()) {
-          let curr = data.at(i)
-          let next
-          let prev
-          if i != data.len() - 1 { next = data.at(i + 1) }
-          if i != 0 { prev = data.at(i - 1) }
-          if i == 0 {  
-            delta.push((rounding * (next.at(0) - curr.at(0)), rounding * (next.at(1) - curr.at(1))))
-          } else if i == data.len() - 1 {
-            delta.push((rounding * (curr.at(0) - prev.at(0)), rounding * (curr.at(1) - prev.at(1))))
-          } else {
-            delta.push((rounding * .5 * (next.at(0) - prev.at(0)), rounding * .5 * (next.at(1) - prev.at(1))))
-          }
-        }
-        
-        place(dx: 0pt, dy: 1pt, path(fill: fill, stroke: stroke, ..data.zip(delta)))
-        for p in data {
-          place(dx: p.at(0) - 1pt, dy: p.at(1), square(size: 2pt, fill: black, stroke: none))
-        }
-      }))
-    })
+    }
+    
+    place(dx: 0pt, dy: 1pt, path(fill: fill, stroke: stroke, ..data.zip(delta)))
+    for p in data {
+      place(dx: p.at(0) - 1pt, dy: p.at(1), square(size: 2pt, fill: black, stroke: none))
+    }
   }
 
-  prepare_plot(size, caption, plot_code)
+  prepare_plot(size, caption, plot_code, plot: plot)
 }
 
 // Displayes a histogram if possible
@@ -157,88 +104,67 @@
 // caption: name of the figure
 // stroke: the stroke color of a bar
 // fill: the fill color of a bar
-// caption_distance: the distance between the plot and the caption
 #let histogram(plot, size, caption: "Histogram", stroke: black, fill: gray) = {
   // Get the relevant axes:
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   let plot_code() = {
-    style(style => {
-      let widths = 0pt
-      let heights = 0pt
-      // Draw coordinate system
-      for axis in plot.axes {
-        let (w,h) = measure_axis(axis, style)
-        widths += w
-        heights += h
-      }
+    let step_size_x = calc_step_size(100%, x_axis)
+    let step_size_y = calc_step_size(100%, y_axis)
+
+    let array_stroke = type(stroke) == "array"
+    let array_fill = type(fill) == "array"
+    // Get count of values
+    let val_count = 0
+    for data in plot.data {
+     val_count += data.data.len()
+    }
+    
+    // Find most common class size
+    // count class occurances
+    let bin_count = ()
+    for data in plot.data {
+     let temp = data.upper_lim - data.lower_lim
+     let found = false
+     for (idx, entry) in bin_count.enumerate() {
+       if temp == entry.at(1) {
+         bin_count.at(idx).at(0) += 1
+         found = true
+         break
+       }
+     }
+     if not found {
+        bin_count.push((1, temp))
+     }
+    }
+    // find most common one
+    let common_class = bin_count.at(0)
+    for value in bin_count {
+     common_class = if value.at(0) > common_class.at(0) {value} else {common_class}
+    }
+    // get the size of the most common class
+    common_class = common_class.at(1)
+    
+    // place the bars
+    for (idx, data) in plot.data.enumerate() {
+      let width = (data.upper_lim - data.lower_lim) * step_size_x
       
-      let x_axis = plot.axes.filter(it => not is_vertical(it)).first()
-      let y_axis = plot.axes.filter(it => is_vertical(it)).first()
-      
-      place(dx: widths, dy: -100%, box(width: 100% - widths, height: 100%-heights, {
-        for axis in plot.axes {
-          if(is_vertical(axis)) {
-            draw_axis(axis)
-          } else {
-            draw_axis(axis)
-          }
-        }
-        let step_size_x = calc_step_size(100%, x_axis)
-        let step_size_y = calc_step_size(100%, y_axis)
-        // Get count of values
-        let val_count = 0
-        for data in plot.data {
-         val_count += data.data.len()
-        }
-        
-        // Find most common class size
-        // count class occurances
-        let bin_count = ()
-        for data in plot.data {
-         let temp = data.upper_lim - data.lower_lim
-         let found = false
-         for (idx, entry) in bin_count.enumerate() {
-           if temp == entry.at(1) {
-             bin_count.at(idx).at(0) += 1
-             found = true
-             break
-           }
-         }
-         if not found {
-            bin_count.push((1, temp))
-         }
-        }
-        // find most common one
-        let common_class = bin_count.at(0)
-        for value in bin_count {
-         common_class = if value.at(0) > common_class.at(0) {value} else {common_class}
-        }
-        // get the size of the most common class
-        common_class = common_class.at(1)
-        
-        // place the bars
-        for data in plot.data {
-          let width = (data.upper_lim - data.lower_lim) * step_size_x
-          
-          let rel_H = (data.data.len() / val_count)
-          let bin_width = (data.upper_lim - data.lower_lim)
-          let height = (data.data.len() * (common_class / bin_width)) * step_size_y
-          let dx = data.lower_lim * step_size_x
-          place(dx: dx, dy: -height, rect(width: width, height: height, fill: fill, stroke: stroke))
-        }
-      }))
-    })
+      let rel_H = (data.data.len() / val_count)
+      let bin_width = (data.upper_lim - data.lower_lim)
+      let height = (data.data.len() * (common_class / bin_width)) * step_size_y
+      let dx = data.lower_lim * step_size_x
+      place(dx: dx, dy: -height, rect(width: width, height: height, fill: if array_fill {fill.at(idx)} else {fill}, stroke: if array_stroke {stroke.at(idx)} else {stroke}))
+    }
   }
 
-  prepare_plot(size, caption, plot_code)
+  prepare_plot(size, caption, plot_code, plot: plot)
 }
 
 
 // Displayes a pie chart if possible
 //---
 // The plot needs to look something like this:
-// data: a list of data 1 dimensional data or a tuple with (amount of occurance, value)
+// data: a list of 1 dimensional data or a tuple with (amount of occurance, value)
 //---
 // size: the size as array of (width, height) or as a single value for width and height
 // caption: name of the figure
@@ -309,7 +235,7 @@
   // The code rendering the plot
   let plot_code() = {
     set align(center + top)
-    layout(size =>  {
+    layout(size => {
       box(width: size.width, height: size.height)
       let total = data.map(a => a.at(0)).sum()
       let angle = 0deg
@@ -364,4 +290,62 @@
 
   // Sets outline for a plot and defines width and height and executes the plot code
   prepare_plot(size, caption, plot_code)
+}
+
+// Displayes a histogram if possible
+//---
+// The plot needs to look something like this:
+// axis: two axes. One working as the x axis, the other as the y axis
+// data: either 1. A list looking like this (val1, val2, val3, ...)
+//              2. A list looking like this ((amount, value), (amount, value)...)
+//---
+// size: the size as array of (width, height) or as a single value for width and height
+// caption: name of the figure
+// stroke: the stroke color of a bar
+// fill: the fill color of a bar
+// centered_bars: if the bars should be on the number its corresponding to (default: true)
+// bar_width: how thick the bars should be in percent. (default: 100%)
+// rotated: if the bars should grow on the "x_axis" - this means the data gets mapped to the y axis - create the axis accordingly
+#let barchart(plot, size, caption: "Barchart", stroke: black, fill: gray, centered_bars: true, bar_width: 100%, rotated: false) = {
+  // Get the relevant axes:
+  let x_axis = plot.axes.at(0)
+  let y_axis = plot.axes.at(1)
+  
+  let plot_code() = {
+    // get step sizes
+    let step_size_x = calc_step_size(100%, x_axis)
+    let step_size_y = calc_step_size(100%, y_axis)
+    // get correct data
+    let data = transform_data_count(plot.data)
+    let array_stroke = type(stroke) == "array"
+    let array_fill = type(fill) == "array"
+    // draw the bars
+    if not rotated {
+      for (idx, data_set) in data.enumerate() {
+      let height = data_set.at(0) * step_size_y
+      let x_data = data_set.at(1)
+      if type(data_set.at(1)) == "string" {
+        x_data = x_axis.values.position(c => c == x_data)
+      }
+      let x_pos = x_data * step_size_x - if centered_bars {step_size_x * bar_width / 2} else {0pt}
+      place(dx: x_pos, dy: -height,
+        rect(width: step_size_x * bar_width, height: height,
+          fill: if array_fill {fill.at(idx)} else {fill}, 
+          stroke: if array_stroke {stroke.at(idx)} else {stroke}))
+      } 
+    } else {
+      for (idx, data_set) in data.enumerate() {
+        let width = data_set.at(0) * step_size_x
+        let y_data = data_set.at(1)
+        if type(data_set.at(1)) == "string" {
+          y_data = y_axis.values.position(c => c == y_data)
+        }
+        let y_pos = y_data * step_size_y + if centered_bars {step_size_y * bar_width / 2} else {0pt}
+        place(dx:0pt, dy: -y_pos, rect(width: width, height: step_size_y * bar_width,           
+        fill: if array_fill {fill.at(idx)} else {fill}, 
+        stroke: if array_stroke {stroke.at(idx)} else {stroke}))
+      }
+    }
+  }
+  prepare_plot(size, caption, plot_code, plot: plot)
 }
