@@ -42,4 +42,4 @@ If you need some example code, check out `main.typ`.
 
 ### Pie charts
 
-![pie](.\images\pie.png)
+![pie](./images/pie.png)
