@@ -26,19 +26,19 @@ If you need some example code, check out `main.typ`.
 
 ### Scatter plots
 
-![scatter](\images\scatter.png)
+![scatter](./images/scatter.png)
 
 ### Graph charts
 
-![graph](.\images\graph.png)
+![graph](./images/graph.png)
 
 ### Histograms
 
-![histogram](.\images\histogram.png)
+![histogram](./images/histogram.png)
 
 ### Bar charts
 
-![bar](.\images\bar.png)
+![bar](./images/bar.png)
 
 ### Pie charts
 
