@@ -26,7 +26,7 @@ If you need some example code, check out `main.typ`.
 
 ### Scatter plots
 
-![scatter](.\images\scatter.png)
+![scatter](\images\scatter.png)
 
 ### Graph charts
 
