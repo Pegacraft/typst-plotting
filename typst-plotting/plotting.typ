@@ -26,6 +26,26 @@
   return plot_data
 }
 
+/// This function is used to overlay multiple plots. This can be used to render multiple graph lines in one plot and much more. The axes that get rendered, are the axes of the first plot inserted. Make sure all plots use the same axes as otherwise this will cause issues.
+/// - plots (array): An array of all the `plot` objects you want to render.
+/// - plot_types (array): An array of the different types of plots these should be rendered as. This array needs to have the same length, as the `plots` array. The array accepts the following strings: `scatter, graph, histogram, pie, bar`. The type of plot is applied per index.
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+#let overlay(plots, size) = {
+  figure(caption: plots.at(0).caption, supplement: "Graph", kind: "plot", {
+    set align(left + bottom)
+    box(..convert_size(size), {
+      // loop over every plots
+      for (idx, plot) in plots.enumerate() {
+        if idx == 0 {
+          place(dx: 0pt, dy: -100%, box(width: 100%, height: 100%, plot.body.child.body))
+        } else {
+          place(dx: 0pt, dy: -100%,box(width: 100%, height: 100%, plot.body.child.body.children.at(1)))
+        }
+      }
+    })
+  })
+}
+
 /// This function will display a scatter plot based on the provided `plot` object. 
 /// === How to create a simple scatter plot
 /// First, we need to define the data we want to map to the scatter plot. In this case I will use some random sample data. \
@@ -45,7 +65,8 @@
 /// - caption (content): The name of the figure
 /// - stroke (color): The stroke color of the dots
 /// - fill (color): The fill color of the dots
-#let scatter_plot(plot, size, caption: [Scatter Plot], stroke: black, fill: none) = {
+/// - render_axes (boolean): If the axes should be visible or not
+#let scatter_plot(plot, size, caption: [Scatter Plot], stroke: black, fill: none, render_axes: true) = {
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   // The code rendering the plot
@@ -65,7 +86,7 @@
   }
 
   // Sets outline for a plot and defines width and height and executes the plot code
-  prepare_plot(size, caption, plot_code, plot: plot)
+  prepare_plot(size, caption, plot_code, plot: plot, render_axis: render_axes)
 }
 
 /// This function will display a graph plot based on the provided `plot` object. It functions like the _scatter plot_ but connects the dots with lines.
@@ -87,7 +108,8 @@
 /// - rounding (ratio): The rounding of the graph, 0% means sharp edges, 100% will make it as smooth as possible (Bézier)
 /// - stroke (color): The stroke color of the graph
 /// - fill (color): The fill color for the graph. Can be used to display the area beneath the graph.
-#let graph_plot(plot, size, caption: "Graph Plot", rounding: 0%, stroke: black, fill: none) = {
+/// - render_axes (boolean): If the axes should be visible or not
+#let graph_plot(plot, size, caption: "Graph Plot", rounding: 0%, stroke: black, fill: none, render_axes: true) = {
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   let plot_code() = {
@@ -118,7 +140,7 @@
     }
   }
 
-  prepare_plot(size, caption, plot_code, plot: plot)
+  prepare_plot(size, caption, plot_code, plot: plot, render_axis: render_axes)
 }
 
 /// This function will display a histogram based on the provided `plot` object. \ \
@@ -150,7 +172,8 @@
 /// - caption (content): The name of the figure
 /// - stroke (color, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
 /// - fill (color, array): The fill color of a bar or an `array` of colors, where every entry stands for the fill color of one bar
-#let histogram(plot, size, caption: [Histogram], stroke: black, fill: gray) = {
+/// - render_axes (boolean): If the axes should be visible or not
+#let histogram(plot, size, caption: [Histogram], stroke: black, fill: gray, render_axes: true) = {
   // Get the relevant axes:
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
@@ -203,7 +226,7 @@
     }
   }
 
-  prepare_plot(size, caption, plot_code, plot: plot)
+  prepare_plot(size, caption, plot_code, plot: plot, render_axis: render_axes)
 }
 
 
@@ -370,7 +393,8 @@
 /// - centered_bars (boolean): If the bars should be on the number its corresponding to
 /// - bar_width (ratio): how thick the bars should be in percent. (default: 100%)
 /// - rotated (boolean): If the bars should grow on the `x_axis` - this means the data gets mapped to the `y-axis`. Don't forget to create the axes accordingly.
-#let bar_chart(plot, size, caption: "Barchart", stroke: black, fill: gray, centered_bars: true, bar_width: 100%, rotated: false) = {
+/// - render_axes (boolean): If the axes should be visible or not
+#let bar_chart(plot, size, caption: "Barchart", stroke: black, fill: gray, centered_bars: true, bar_width: 100%, rotated: false, render_axes: true) = {
   // Get the relevant axes:
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
@@ -411,5 +435,5 @@
       }
     }
   }
-  prepare_plot(size, caption, plot_code, plot: plot)
+  prepare_plot(size, caption, plot_code, plot: plot, render_axis: render_axes)
 }

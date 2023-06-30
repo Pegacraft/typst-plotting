@@ -1,5 +1,38 @@
 #import "/typst-plotting/axis.typ": *
 
+// hackyish solution to split axis and content
+#let render(plot, plot_code, render_axis) = style(style => {
+        let widths = 0pt
+        let heights = 0pt
+        // Draw coordinate system
+        for axis in plot.axes {
+          let (w,h) = measure_axis(axis, style)
+          widths += w
+          heights += h
+        }
+        
+        let x_axis = plot.axes.filter(it => not is_vertical(it)).first()
+        let y_axis = plot.axes.filter(it => is_vertical(it)).first()
+        
+        let offset_y = 0pt
+        let offset_x = 0pt
+        if x_axis.location == "bottom" {
+          offset_y = -heights
+        }
+        if y_axis.location == "left" {
+          offset_x = widths
+        }
+        place(dx: offset_x, dy: -100% + heights+offset_y, box(width: 100% - widths, height: 100% - heights, {
+          if render_axis {
+            for axis in plot.axes {
+              draw_axis(axis)
+            }
+          } else {
+          plot_code()
+        }
+      }))
+    })
+
 // Prepares everything for a plot and executes the function that draws a plot. Supplies it with width and height
 // size: the size of the plot either as array(width, height) or length
 // caption: the caption for the plot
@@ -7,48 +40,20 @@
 //-------
 // width: the width of the plot
 // height: the height of the plot
-// the plot code: a function that needs to look accept 2 parameters (width, height)
+// the plot code: a function that needs to look accept parameters (width, height)
+// plot: if set this function will attempt to render the axes and prepare everything. If not, the setup is up to you
+// if you want to make the axes visible (only if plot is set)
 //-------
-#let prepare_plot(size, caption, plot_code, plot: ()) = {
+#let prepare_plot(size, caption, plot_code, plot: (), render_axis: true) = {
   let (width, height) = if type(size) == "array" {size} else {(size, size)}
-  figure(caption: caption, supplement: "Graph", kind: "plot")[
+  figure(caption: caption, supplement: "Graph", kind: "plot", {
     // Graph box
-    #set align(left + bottom)
-    #box(width: width, height: height, fill: none, if plot == () {plot_code()} else {
-      style(style => {
-      let widths = 0pt
-      let heights = 0pt
-      // Draw coordinate system
-      for axis in plot.axes {
-        let (w,h) = measure_axis(axis, style)
-        widths += w
-        heights += h
-      }
-      
-      let x_axis = plot.axes.filter(it => not is_vertical(it)).first()
-      let y_axis = plot.axes.filter(it => is_vertical(it)).first()
-      
-      let offset_y = 0pt
-      let offset_x = 0pt
-      if x_axis.location == "bottom" {
-        offset_y = -heights
-      }
-      if y_axis.location == "left" {
-        offset_x = widths
-      }
-      place(dx: offset_x, dy: -100% + heights+offset_y, box(width: 100% - widths, height: 100% - heights, {
-        for axis in plot.axes {
-          if(is_vertical(axis)) {
-            draw_axis(axis)
-          } else {
-            draw_axis(axis)
-          }
-        }
-        plot_code()
-      }))
+    set align(left + bottom)
+    box(width: width, height: height, fill: none, if plot == () { plot_code() } else {
+      if render_axis { render(plot, plot_code, true) } 
+      render(plot, plot_code, false)
     })
-    })
-  ]
+  })
 }
 
 // Calculates step size for an axis
@@ -96,4 +101,10 @@
    }
   }
   return new_data
+}
+
+// converts an integer or 2-long array to a width, height dictionary
+#let convert_size(size) = {
+  if type(size) == "int" { return (width: size, height: size) }
+  if size.len() == 2 { return (width: size.at(0), height: size.at(1)) }
 }

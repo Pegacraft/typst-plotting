@@ -33,7 +33,7 @@
 /// ```js let classes = class_generator(10000, 50000, 4)``` \ \
 /// This will result in creating the following classes: `(10000 - 20000, 20000 - 30000, 30000 - 40000, 40000 - 50000, 50000 - 100000)`. \ \
 /// - start (integer): The lower limit of the first generated class.
-/// - end (integer): Endinpper limit of the last generated class.
+/// - end (integer): The upper limit of the last generated class.
 /// - amount (integer): How many classes should be generated.
 #let class_generator(start, end, amount) = {
   let step = int((end - start) / amount)

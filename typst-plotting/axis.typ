@@ -86,6 +86,7 @@
   panic("axis location wrong")
 }
 
+
 // returns the expected need of space as a (width, height) array
 // axis: the axis
 // style: styling

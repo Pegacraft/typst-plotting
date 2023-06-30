@@ -22,6 +22,7 @@
     - Histograms
     - Bar charts
     - Pie charts
+    - Overlaying plots/charts
     More features will be added over time. If you have some feedback, let us know!
   ],
   date: "17.6.2023",

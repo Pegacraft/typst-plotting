@@ -1,6 +1,5 @@
-#import "/typst-plotting/plotting.typ": *
-#import "/typst-plotting/axis.typ": *
-#import "/typst-plotting/util/classify.typ": *
+#import "/lib.typ": *
+
 #let print(desc: "", content) = {
   desc
   repr(content)
@@ -15,6 +14,13 @@
   let gender_axis_x = axis(values: ("", "m", "w", "d"), location: "bottom", helper_lines: true, invert_markings: false, title: "Gender")
   let pl = plot(data: gender_data, axes: (gender_axis_x, y_axis))
   scatter_plot(pl, (100%,50%))
+  let data = (
+    (0, 0), (2, 2), (3, 0), (4, 4), (5, 7), (6, 6), (7, 9), (8, 5), (9, 9), (10, 1)
+  )
+  let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")
+  let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
+  let pl = plot(data: data, axes: (x_axis, y_axis))
+  scatter_plot(pl, (100%, 25%))
 }
 
 #let graph_plot_test() = {
@@ -24,8 +30,6 @@
     let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")
     let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
     let pl = plot(data: data, axes: (x_axis, y_axis))
-    scatter_plot(pl, (100%, 25%))
-    pagebreak()
     graph_plot(pl, (100%, 25%))
     graph_plot(pl, (100%, 25%), rounding: 30%, caption: "Graph Plot with caption and rounding")
 }
@@ -88,6 +92,26 @@
   let x_axis_2 = axis(min: 0, max: 21, step: 1, location: "bottom")
   let pl_2 = plot(axes: (x_axis_2, y_axis_2), data: data_2)
   bar_chart(pl_2, (100%, 60%), bar_width: 100%)
+}
+
+// TODO
+#let overlay_test() = {
+    let data_scatter = (
+      (0, 0), (2, 2), (3, 0), (4, 4), (5, 7), (6, 6), (7, 9), (8, 5), (9, 9), (10, 1)
+    )
+    let data_graph = (
+        (0, 3), (1, 5), (2, 1), (3, 7), (4, 3), (5, 5), (6, 7),(7, 4),(11, 6)
+      )
+    let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")
+    let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
+    let pl_scatter = plot(data: data_scatter, axes: (x_axis, y_axis))
+    let scatter_display = scatter_plot(pl_scatter, (100%, 25%), stroke: red)
+    let pl_graph = plot(data: data_graph, axes: (x_axis, y_axis))
+    let graph_display = graph_plot(pl_graph, (100%, 25%), stroke: blue)
+    scatter_display
+    graph_display
+    overlay((scatter_display, graph_display), (100%, 25%))
+    
 }
 
 #let paper_test() = {
@@ -172,6 +196,17 @@
   pie_chart_test()
   pagebreak()
   bar_chart_test()
+  overlay_test()
 
   paper_test()
 }
+// TODO:
+// fix points when choosing rounding in graph plot <- Gewi
+// bar chart <- Karla
+  // - make bars realign on right/top
+// box plot <- Karla
+// math graph (to display equations)
+// graph overlapping. Should make it possible to lay one graph onto another. Usefull when wanting to draw mathematical equations into a scatter plot 
+// util for mean, median, quartil <- Karla
+// titles for axes (partly done) <- Karla, Gewi
+// fix axis titles being on wrong side
