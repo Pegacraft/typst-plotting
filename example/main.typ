@@ -1,4 +1,5 @@
-#import "/lib.typ": *
+// #import "/lib.typ": * // For local testing
+#import "@preview/plotst:0.1.0": *
 
 #let print(desc: "", content) = {
   desc
