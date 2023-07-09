@@ -117,7 +117,15 @@
     let step_size_x = calc_step_size(100%, x_axis)
     let step_size_y = calc_step_size(100%, y_axis)
     // Places the data points
-    let data = plot.data.map(data => { ((data.at(0) - x_axis.min) * step_size_x, -(data.at(1) - y_axis.min) * step_size_y) })
+    let data = plot.data.map(((x,y)) => {
+      if type(x) == "string" {
+        x = x_axis.values.position(c => c == x)
+      }
+      if type(y) == "string" {
+        y = y_axis.values.position(c => c == y)
+      }
+      ((x - x_axis.min) * step_size_x, -(y - y_axis.min) * step_size_y)
+    })
     let delta = ()
     let rounding = rounding * -1
     for i in range(data.len()) {
