@@ -139,9 +139,9 @@
     for p in data {
       if markings == none {
       } else if markings == "square" {
-        place(dx: p.at(0) - 1pt, dy: p.at(1), square(size: 2pt, fill: black, stroke: none))
+        place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, square(size: 2pt, fill: black, stroke: none))
       } else if markings == "circle" {
-        place(dx: p.at(0) - 1pt, dy: p.at(1), circle(radius: 1pt, fill: black, stroke: none))
+        place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, circle(radius: 1pt, fill: black, stroke: none))
       } else if markings == "cross" {
         place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, line(length: 2.82pt, angle: 45deg))
         place(dx: p.at(0) - 1pt, dy: p.at(1) + 1pt, line(length: 2.82pt, angle: -45deg))
