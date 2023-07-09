@@ -1,5 +1,4 @@
-// #import "/lib.typ": * // For local testing
-#import "@preview/plotst:0.1.0": *
+#import "/lib.typ": *
 
 #let print(desc: "", content) = {
   desc
@@ -32,7 +31,7 @@
     let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
     let pl = plot(data: data, axes: (x_axis, y_axis))
     graph_plot(pl, (100%, 25%))
-    graph_plot(pl, (100%, 25%), rounding: 30%, caption: "Graph Plot with caption and rounding")
+    graph_plot(pl, (100%, 25%), rounding: 30%, caption: "Graph Plot with caption and rounding", markings: [#emoji.rocket])
 }
 
 #let histogram_test() = {
@@ -211,3 +210,4 @@
 // util for mean, median, quartil <- Karla
 // titles for axes (partly done) <- Karla, Gewi
 // fix axis titles being on wrong side
+// xyarea chart gewi

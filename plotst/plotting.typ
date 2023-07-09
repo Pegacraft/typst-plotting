@@ -109,14 +109,15 @@
 /// - stroke (color): The stroke color of the graph
 /// - fill (color): The fill color for the graph. Can be used to display the area beneath the graph.
 /// - render_axes (boolean): If the axes should be visible or not
-#let graph_plot(plot, size, caption: "Graph Plot", rounding: 0%, stroke: black, fill: none, render_axes: true) = {
+/// - markings (none, string, content): how the data points should be shown: "square", "circle", "cross", otherwise manually specify any shape
+#let graph_plot(plot, size, caption: "Graph Plot", rounding: 0%, stroke: black, fill: none, render_axes: true, markings: "square") = {
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   let plot_code() = {
     let step_size_x = calc_step_size(100%, x_axis)
     let step_size_y = calc_step_size(100%, y_axis)
     // Places the data points
-    let data = plot.data.map(data => { ((data.at(0) - x_axis.min) * step_size_x, -(data.at(1) - y_axis.min) * step_size_y - 1pt) })
+    let data = plot.data.map(data => { ((data.at(0) - x_axis.min) * step_size_x, -(data.at(1) - y_axis.min) * step_size_y) })
     let delta = ()
     let rounding = rounding * -1
     for i in range(data.len()) {
@@ -134,9 +135,22 @@
       }
     }
     
-    place(dx: 0pt, dy: 1pt, path(fill: fill, stroke: stroke, ..data.zip(delta)))
+    place(dx: 0pt, dy: 0pt, path(fill: fill, stroke: stroke, ..data.zip(delta)))
     for p in data {
-      place(dx: p.at(0) - 1pt, dy: p.at(1), square(size: 2pt, fill: black, stroke: none))
+      if markings == none {
+      } else if markings == "square" {
+        place(dx: p.at(0) - 1pt, dy: p.at(1), square(size: 2pt, fill: black, stroke: none))
+      } else if markings == "circle" {
+        place(dx: p.at(0) - 1pt, dy: p.at(1), circle(radius: 1pt, fill: black, stroke: none))
+      } else if markings == "cross" {
+        place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, line(length: 2.82pt, angle: 45deg))
+        place(dx: p.at(0) - 1pt, dy: p.at(1) + 1pt, line(length: 2.82pt, angle: -45deg))
+      } else if type(markings) == "content" {
+        style(s => {
+          let (width, height) = measure(markings, s)
+          place(dx: p.at(0)-width/2, dy: p.at(1)-height/2, markings)
+        })
+      }
     }
   }
 
