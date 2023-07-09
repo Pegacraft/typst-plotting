@@ -7,10 +7,18 @@
 #let render(plot, plot_code, render_axis) = style(style => {
         let widths = 0pt
         let heights = 0pt
+        let offset_left = 0pt
+        let offset_bottom = 0pt
         // Draw coordinate system
         for axis in plot.axes {
           let (w,h) = measure_axis(axis, style)
+          if(axis.location == "left") {
+            offset_left += w
+          }
           widths += w
+          if(axis.location == "bottom") {
+            offset_bottom += h
+          }
           heights += h
         }
         
@@ -20,12 +28,12 @@
         let offset_y = 0pt
         let offset_x = 0pt
         if x_axis.location == "bottom" {
-          offset_y = -heights
+          offset_y = -offset_bottom
         }
         if y_axis.location == "left" {
-          offset_x = widths
+          offset_x = offset_left
         }
-        place(dx: offset_x, dy: -100% + heights+offset_y, box(width: 100% - widths, height: 100% - heights, {
+        place(dx: offset_x, dy: -100% + heights+offset_y, box(width: 100% - widths, height: 100% - heights, fill: none, {
           if render_axis {
             for axis in plot.axes {
               draw_axis(axis)
@@ -169,7 +177,7 @@
 /// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
 /// - caption (content): The name of the figure
 /// - rounding (ratio): The rounding of the graph, 0% means sharp edges, 100% will make it as smooth as possible (Bézier)
-/// - stroke (none, auto, length, color, dictionary, stroke): The stroke color of the graph
+/// - stroke (none, auto, length, color, dictionary, stroke): How to stoke the graph. \ See: #link("https://typst.app/docs/reference/visualize/line/#parameters-stroke")
 /// - fill (color): The fill color for the graph. Can be used to display the area beneath the graph.
 /// - render_axes (boolean): If the axes should be visible or not
 /// - markings (none, string, content): how the data points should be shown: "square", "circle", "cross", otherwise manually specify any shape
@@ -508,4 +516,91 @@
     }
   }
   prepare_plot(size, caption, plot_code, plot: plot, render_axis: render_axes)
+}
+
+/// This function will display a graph plot based on the provided `plot` object. It functions like the _scatter plot_ but connects the dots with lines in a circular fashion.
+/// === How to create a simple radar plot
+/// First, we need to define the data we want to map to the graph plot. In this case I will use some random sample data. \
+/// ```typc let data = ((0,6),(1,7),(2,5),(3,4),(4,4),(5,7),(6,6),(7,1),)``` \ \
+/// Next, we need to define both the x and the y-axis. You can customise the look of the axes with `axis` specific parameters (here: `helper_lines: true`)
+/// ```typc let y_axis = axis(min:0, max: 8, location: "left", helper_lines: true)
+///  let x_axis = axis(min:0, max: 8, location: "bottom")```
+/// Now we need to create a `plot` object based on the axes and the data. \
+/// ```typc let pl = plot(data: data, axes: (x_axis, y_axis))```\ \
+/// Last, we need to just call this function. In this case the width of the plot will be `100%` and the height will be `33%`. \
+/// ```typc radar_chart(pl, (100%, 33%))``` \ \
+/// - plot (plot): The format of the plot variables are as follows: \
+///   - `axes:` Two axes are required. The first one as the x-axis, the second as the y-axis. \ _Example:_ `(x_axis, y_axis)`
+///   - `data:` An array of `x` and `y` pairs. \ _Example:_ `((0, 0), (1, 2), (2, 4), …)`
+/// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
+/// - caption (content): The name of the figure
+/// - stroke (none, auto, length, color, dictionary, stroke): The stroke color of the graph
+/// - fill (color): The fill color for the graph. Can be used to display the area beneath the graph.
+/// - render_axes (boolean): If the axes should be visible or not
+/// - markings (none, string, content): how the data points should be shown: "square", "circle", "cross", otherwise manually specify any shape
+/// - scaling (ratio): how much the actual plot should be smaller to account for axis namings
+#let radar_chart(plot, size, caption: "Radar Chart", stroke: black, fill: none, render_axes: true, markings: "square", scaling: 95%) = {
+  let x_axis = plot.axes.at(0)
+  let y_axis = plot.axes.at(1)
+  let plot_code() = {
+    let data = plot.data.map(((x,y)) => {
+      if type(x) == "string" {
+        x = x_axis.values.position(c => c == x)
+      }
+      if type(y) == "string" {
+        y = y_axis.values.position(c => c == y)
+      }
+      (x,y)
+    })
+    place(dy: -50%, dx: 50%, box(height: scaling, width: scaling, {
+    layout(size => {
+      let radius = min(size.width, size.height)/2
+      place( {
+        let last = plot.data.at(-1)
+        
+        let x_size = x_axis.values.len()
+        let y_size = y_axis.values.len()
+        let step_size = radius / y_size
+        
+        let translate(x,y) = {
+          (calc.sin(360deg/x_size * x) * y * step_size, -calc.cos(360deg/x_size * x) * y * step_size)
+        }
+
+        place(box(height: 50%, width: 0pt, draw_axis(y_axis)), dy: -50%)
+        for x in range(1,x_size) {
+          place(line(angle: 360deg/x_size * x -90deg, length: radius))
+        }
+        if x_axis.show_values {
+          for i in range(0, x_size) {
+            let (x,y) = translate(i, y_size)
+            place(dx: x / float(scaling), dy: y / float(scaling), box(width: 0pt, height: 0pt, align(center + horizon, text(str(x_axis.values.at(i)), fill: x_axis.value_color))))
+          }
+        }
+        for y in range(1, y_size) {
+          let points = ()
+          for x in range(x_size) {
+            points += (translate(x,y),)
+            if(y_axis.show_markings) {
+              place(line(start: points.at(-1), angle: 360deg/x_size*x, length: y_axis.marking_length))
+              place(line(start: points.at(-1), angle: 360deg/x_size*x, length: -y_axis.marking_length))
+            }
+          }
+          if(y_axis.helper_lines) {
+            place(path(..points, closed: true, stroke: (paint: y_axis.helper_line_color, dash: y_axis.helper_line_style)))
+          }
+        }
+        
+        let points = ()
+        for p in data {
+          let (x,y) = translate(p.at(0)/x_axis.step, p.at(1)/y_axis.step)
+          points += ((x,y),)
+          draw_marking((x,y), markings)
+        }
+        place(path(..points, closed: true, stroke: stroke, fill: fill))
+      })
+    })
+    }))
+  }
+
+  prepare_plot(size, caption, plot_code, plot: plot, render_axis: false)
 }

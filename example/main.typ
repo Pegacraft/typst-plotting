@@ -111,7 +111,27 @@
     scatter_display
     graph_display
     overlay((scatter_display, graph_display), (100%, 25%))
-    
+
+    x_axis = axis(min: 0, max: 11, step: 2, location: "bottom", show_values: false)
+    y_axis = axis(min: 0, max: 11, step: 2, location: "left", show_values: false)
+    let ice = (data: ((0,0),(3,3),(0,10)), axes: (x_axis, y_axis))
+    let a = graph_plot(ice, (100%, 25%), fill: blue.lighten(50%), markings: none, stroke: none, caption: "foo")
+    let water = (data: ((0,0),(3,3),(10,7), (10,0)), axes: (x_axis, y_axis))
+    let b = graph_plot(water, (100%, 25%), fill: blue, markings: none, stroke: none)
+    let steam = (data: ((3,3),(10,7),(10,10),(0,10)), axes: (x_axis, y_axis))
+    let c = graph_plot(steam, (100%, 25%), fill: yellow, markings: none, stroke: none)
+    overlay((a, b, c), (50%, 25%))
+}
+
+#let radar_test() = {
+  let data = (
+    (0,6),(1,7),(2,5),(3,4),(4,4),(5,7),(6,6),(7,1),
+  )
+  let y_axis = axis(min:0, max: 8, location: "left", helper_lines: true)
+  let x_axis = axis(min:0, max: 8, location: "bottom")
+  
+  let pl = plot(data: data, axes: (x_axis, y_axis))
+  radar_chart(pl, (100%,60%))
 }
 
 #let paper_test() = {
@@ -197,7 +217,8 @@
   pagebreak()
   bar_chart_test()
   overlay_test()
-
+  radar_test()
+  
   paper_test()
 }
 // TODO:
@@ -210,4 +231,4 @@
 // util for mean, median, quartil <- Karla
 // titles for axes (partly done) <- Karla, Gewi
 // fix axis titles being on wrong side
-// xyarea chart gewi
+// xyarea chart gewi //done by fill: red i guess
