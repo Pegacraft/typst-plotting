@@ -2,6 +2,27 @@
 // THIS FILE CONTAINS EVERYTHING TO DRAW AND REPRESENT AXES
 //------------------
 
+// range that supports float parameters
+#let float_range(min, max, step: 1) = {
+    if type(min) == "float" or type(max) == "float" or type(step) == "float" {
+      let it = ()
+      it.push(min)
+      if step < 0 {
+        while it.last() + step > max {
+          assert(it.last() + step < it.last(), message: "step size too small to decrease float")
+          it.push(it.last() + step)
+        }
+      } else {
+        while it.last() + step < max {
+          assert(it.last() + step > it.last(), message: "step size too small to increase float")
+          it.push(it.last() + step)
+        }
+      }
+      it
+    } else {
+      range(min, max, step: step)
+    }
+}
 
 /// This is the constructor function for creating axes. Most plots/graphs will require axes to function. \ \
 /// === Basics
@@ -28,9 +49,9 @@
 /// let y_axis_2 = axis(min: 0, max: 41, step: 10, 
 ///   location: "left", show_markings: true, helper_lines: true)```
 ///
-/// - min (integer): From where `values` should started generating (inclusive)
-/// - max (integer): Where `values` should stopped being generated (exclusive)
-/// - step (integer): The steps that should be taken when generating `values`
+/// - min (integer, float): From where `values` should started generating (inclusive)
+/// - max (integer, float): Where `values` should stopped being generated (exclusive)
+/// - step (integer, float): The steps that should be taken when generating `values`
 /// - values (array): The values of the markings (exclusive with `min`,#sym.space `max` and `step`)
 /// - location (string): The position of the axis. Only valid options are: `"top", "bottom", "left", "right"`
 /// - show_values (boolean): If the values should be displayed
@@ -71,7 +92,7 @@
   )
   
   if values.len() == 0 {
-    axis_data.values = range(min, max, step: step)
+    axis_data.values = float_range(min, max, step: step)
   }
 
   return axis_data
