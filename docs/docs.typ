@@ -2,7 +2,7 @@
 #import "typst-doc.typ": parse-module, show-module
 #show link: underline
 
-
+#show "(deprecated)": block(box(fill: red, "deprecated", inset: 3pt, radius: 3pt))
 // Take a look at the file `template.typ` in the file panel
 // to customize this template and discover how it works.
 #show: project.with(
@@ -41,12 +41,12 @@
 #{
   let options = (allow-breaking: false)
   let modules = (
-     "Axes": "/typst-plotting/axis.typ",
-     "Plots": "/typst-plotting/plotting.typ",
-     "Classification": "/typst-plotting/util/classify.typ",
+     "Axes": "/plotst/axis.typ",
+     "Plots": "/plotst/plotting.typ",
+     "Classification": "/plotst/util/classify.typ",
   )
-  set heading(numbering: "1.1.")
-  outline(indent: auto, depth: 2)
+  //set heading(numbering: "1.1.")
+  outline(indent: 2em, depth: 2)
   align(center)[Docs were created with #link("https://github.com/Mc-Zen/typst-doc")[typst-doc]]
   pagebreak()
   for (name, path) in modules {

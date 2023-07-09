@@ -63,10 +63,11 @@
 ///   - `data:` An array of `x` and `y` pairs. \ _Example:_ `((0, 0), (1, 2), (2, 4), …)`
 /// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
 /// - caption (content): The name of the figure
-/// - stroke (color): The stroke color of the dots
-/// - fill (color): The fill color of the dots
+/// - stroke (none, auto, length, color, dictionary, stroke): The stroke color of the dots (deprecated)
+/// - fill (color): The fill color of the dots (deprecated)
 /// - render_axes (boolean): If the axes should be visible or not
-#let scatter_plot(plot, size, caption: [Scatter Plot], stroke: black, fill: none, render_axes: true) = {
+/// - markings (string, content): how the data points should be shown: "square", "circle", "cross", otherwise manually specify any shape (gets overwritten by stroke/fill)
+#let scatter_plot(plot, size, caption: [Scatter Plot], stroke: none, fill: none, render_axes: true, markings: "square") = {
   let x_axis = plot.axes.at(0)
   let y_axis = plot.axes.at(1)
   // The code rendering the plot
@@ -81,8 +82,12 @@
       if type(y) == "string" {
         y = y_axis.values.position(c => c == y)
       }
-      place(dx: (x - x_axis.min) * step_size_x - 1pt, dy: -(y - y_axis.min) * step_size_y - 1pt, square(width: 2pt, height: 2pt, fill: fill, stroke: stroke))
+      if stroke != none or fill != none { // DELETEME deprecation, only keep else
+        draw_marking(((x - x_axis.min) * step_size_x, -(y - y_axis.min) * step_size_y), square(width: 2pt, height: 2pt, fill: fill, stroke: stroke))
+      } else {
+        draw_marking(((x - x_axis.min) * step_size_x, -(y - y_axis.min) * step_size_y), markings)
       }
+    }
   }
 
   // Sets outline for a plot and defines width and height and executes the plot code
@@ -106,7 +111,7 @@
 /// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
 /// - caption (content): The name of the figure
 /// - rounding (ratio): The rounding of the graph, 0% means sharp edges, 100% will make it as smooth as possible (Bézier)
-/// - stroke (color): The stroke color of the graph
+/// - stroke (none, auto, length, color, dictionary, stroke): The stroke color of the graph
 /// - fill (color): The fill color for the graph. Can be used to display the area beneath the graph.
 /// - render_axes (boolean): If the axes should be visible or not
 /// - markings (none, string, content): how the data points should be shown: "square", "circle", "cross", otherwise manually specify any shape
@@ -137,20 +142,7 @@
     
     place(dx: 0pt, dy: 0pt, path(fill: fill, stroke: stroke, ..data.zip(delta)))
     for p in data {
-      if markings == none {
-      } else if markings == "square" {
-        place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, square(size: 2pt, fill: black, stroke: none))
-      } else if markings == "circle" {
-        place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, circle(radius: 1pt, fill: black, stroke: none))
-      } else if markings == "cross" {
-        place(dx: p.at(0) - 1pt, dy: p.at(1) - 1pt, line(length: 2.82pt, angle: 45deg))
-        place(dx: p.at(0) - 1pt, dy: p.at(1) + 1pt, line(length: 2.82pt, angle: -45deg))
-      } else if type(markings) == "content" {
-        style(s => {
-          let (width, height) = measure(markings, s)
-          place(dx: p.at(0)-width/2, dy: p.at(1)-height/2, markings)
-        })
-      }
+      draw_marking(p, markings)
     }
   }
 
@@ -184,7 +176,7 @@
 ///   - `data:` An array of `x` and `y` pairs. \ _Example:_ `((0, 0), (1, 2), (2, 4), …)`
 /// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
 /// - caption (content): The name of the figure
-/// - stroke (color, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
+/// - stroke (none, auto, length, color, dictionary, stroke, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
 /// - fill (color, array): The fill color of a bar or an `array` of colors, where every entry stands for the fill color of one bar
 /// - render_axes (boolean): If the axes should be visible or not
 #let histogram(plot, size, caption: [Histogram], stroke: black, fill: gray, render_axes: true) = {
@@ -402,7 +394,7 @@
 ///   - `data:` An array of single values or an array of `(amount, value)` tuples. \ _Example:_ `((10, "Male"), (5, "Female"), (2, "Divers"), …)` or `("Male", "Male", "Male", "Female", "Female", "Divers", "Divers", …)`
 /// - size (length, array): The size as array of `(width, height)` or as a single value for both `width` and `height`
 /// - caption (content): The name of the figure
-/// - stroke (color, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
+/// - stroke (none, auto, length, color, dictionary, stroke, array): The stroke color of a bar or an `array` of colors, where every entry stands for the stroke color of one bar
 /// - fill (color, array): The fill color of a bar or an `array` of colors, where every entry stands for the fill color of one bar
 /// - centered_bars (boolean): If the bars should be on the number its corresponding to
 /// - bar_width (ratio): how thick the bars should be in percent. (default: 100%)

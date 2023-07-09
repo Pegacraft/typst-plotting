@@ -108,3 +108,23 @@
   if type(size) == "int" { return (width: size, height: size) }
   if size.len() == 2 { return (width: size.at(0), height: size.at(1)) }
 }
+
+#let draw_marking(data, markings) = {
+  if markings == none { return }
+  if markings == "square" {
+    markings = square(size: 2pt, fill: black, stroke: none)
+  } else if markings == "circle" {
+    markings = circle(radius: 1pt, fill: black, stroke: none)
+  } else if markings == "cross" {
+    markings = {
+      place(line(angle: 45deg, length: 1pt))
+      place(line(angle: -45deg, length: 1pt))
+      place(line(angle: 135deg, length: 1pt))
+      place(line(angle: -135deg, length: 1pt))
+    }
+  }
+  style(s => {
+    let (width, height) = measure(markings, s)
+    place(dx: data.at(0) - width/2, dy: data.at(1) - height/2, markings)
+  })
+}
