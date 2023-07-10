@@ -93,3 +93,17 @@
       range(min, max, step: step)
     }
 }
+
+/// This function generates `(x, y)` data based on a function to use in other equations.
+/// - equation (function): A function that accepts the `x` value of the data and returns the proper `y` value.
+/// - start (integer, float): The first `x` value that should be generated.
+/// - end (integer, float): The last `x` value that should be generated.
+/// - precision (integer): How many lines should be plotted between the `start` and `end` value. The higher the value, the more precise the data will get.
+#let function_plotter(equation, start, end, precision: 100) = {
+  let points = ()
+  for step in float_range(start, end, step: (end - start) / precision) {
+    points.push((step, equation(step)))
+  }
+  points.push((end, equation(end)))
+  return points
+}
