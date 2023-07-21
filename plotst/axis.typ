@@ -36,6 +36,7 @@
 /// - values (array): The values of the markings (exclusive with `min`,#sym.space `max` and `step`)
 /// - location (string): The position of the axis. Only valid options are: `"top", "bottom", "left", "right"`
 /// - show_values (boolean): If the values should be displayed
+/// - show_arrows (boolean): If arrows at the end of axis should be displayed
 /// - show_markings (boolean): If the markings should be displayed
 /// - invert_markings (boolean): If the markins should point away from the data (outwards)
 /// - marking_offset_left (integer): Amount of hidden markings from the left or bottom
@@ -49,13 +50,14 @@
 /// - marking_length (length): The length of a marking in absolute size
 /// - marking_number_distance (length): The distance between the marker and the number
 /// - title (content): The display name of the axis
-#let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt, title: []) = {
+#let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_arrows: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt, title: []) = {
   let axis_data = (
     min: min,
     max: max,
     step: step,
     location: location,
     show_values: show_values,
+    show_arrows: show_arrows,
     show_markings: show_markings,
     invert_markings: invert_markings,
     marking_offset_left: marking_offset_left,
@@ -143,10 +145,21 @@
       pos.at(1) = -length + pos.at(1)
       invert_markings = -1
     }
-    
+    let arrow_size = 0pt
+    if axis.show_arrows {
+      // sets the size of arrows
+      arrow_size = 2pt
+    }
     if is_vertical(axis) {
       // Places the axis line
-      place(dx: pos.at(0), dy: pos.at(1), line(angle: -90deg, length: length, stroke: axis.stroke))
+      place(dx: pos.at(0), dy: pos.at(1), line(angle: -90deg, length: length - arrow_size * 2, stroke: axis.stroke))
+      
+      // draw the arrow at the end of the axis
+      if axis.show_arrows {
+        place(dx: pos.at(0), dy: pos.at(1) - length, 
+          polygon(fill: axis.stroke, (-arrow_size, arrow_size * 2), (0pt, -1pt), (arrow_size, arrow_size * 2))
+        )
+      }
       // Places the title
       //place(dy: -50%, rotate(-90deg, axis.title)) // TODO
       style(style => {
@@ -183,7 +196,14 @@
 
     } else {
       // Places the axis line
-      place(dx: pos.at(0), dy: pos.at(1), line(angle: 0deg, length: length, stroke: axis.stroke))
+      place(dx: pos.at(0), dy: pos.at(1), line(angle: 0deg, length: length - arrow_size * 2, stroke: axis.stroke))
+      
+      // draw the arrow at the end of the axis
+      if axis.show_arrows {
+        place(dx: pos.at(0) + length - arrow_size * 2, dy: pos.at(1), 
+          polygon(fill: axis.stroke, (0pt, -arrow_size), (arrow_size * 2, 0pt), (0pt, arrow_size))
+        )
+      }
 
       // Places the title
       //place(dx: 50%, align(bottom + center, box(width:0pt, height: 0pt, axis.title))) // TODO willbreak
