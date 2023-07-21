@@ -105,15 +105,19 @@
   let inversion = if axis.invert_markings == -1 {dist * 2 + size.width} else {0pt}
 
   let title_extra = measure(axis.title, style).height
-
-  let sizes = axis.values.map(it => {
-    let size = measure([#it], style)
-    if is_vertical(axis) {
-      return size.width
-    } else {
-      return size.height
-    }
-  })
+  
+  let sizes = (0pt,)
+  if axis.show_values {
+    sizes = axis.values.map(it => {
+      let size = measure([#it], style)
+      if is_vertical(axis) {
+        return size.width
+      } else {
+        return size.height
+      }
+    })
+  }
+  
   let size = calc.max(..sizes) + inversion + 2 * dist + title_extra
   if is_vertical(axis) {
     return (size, 0pt)
