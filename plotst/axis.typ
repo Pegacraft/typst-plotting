@@ -1,3 +1,4 @@
+// DONT COMMIT ME
 #import "util/util.typ": *
 
 //------------------
@@ -107,19 +108,15 @@
   let inversion = if axis.invert_markings == -1 {dist * 2 + size.width} else {0pt}
 
   let title_extra = measure(axis.title, style).height
-  
-  let sizes = (0pt,)
-  if axis.show_values {
-    sizes = axis.values.map(it => {
-      let size = measure([#it], style)
-      if is_vertical(axis) {
-        return size.width
-      } else {
-        return size.height
-      }
-    })
-  }
-  
+
+  let sizes = axis.values.map(it => {
+    let size = measure([#it], style)
+    if is_vertical(axis) {
+      return size.width
+    } else {
+      return size.height
+    }
+  })
   let size = calc.max(..sizes) + inversion + 2 * dist + title_extra
   if is_vertical(axis) {
     return (size, 0pt)
@@ -179,7 +176,7 @@
       for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
         // Draw helper lines:
         if axis.helper_lines {
-          place(dx: pos.at(0), dy: pos.at(1) - step_length * step, line(angle: 0deg, length: length * invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
+          //place(dx: pos.at(0), dy: pos.at(1) - step_length * step, line(angle: 0deg, length: length * invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
         }
         
         // Draw markings
@@ -224,7 +221,7 @@
       for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
         // Draw helper lines:
         if axis.helper_lines {
-          place(dx: pos.at(0) + step_length * step, dy: pos.at(1), line(angle: 90deg, length: length * -invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
+          //place(dx: pos.at(0) + step_length * step, dy: pos.at(1), line(angle: 90deg, length: length * -invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
         }
 
         // Draw markings
@@ -246,4 +243,32 @@
     }
 }
 
+// Draws the helper lines for an axis. Needs to be seperated for rendering order reasons
+#let draw_helper_lines(axis, length: 100%, pos: (0pt, 0pt)) = {
+  let step_length = length / axis.values.len()
+  let invert_markings = 1
+  // Changes point of reference if top or right is chosen
+  if axis.location == "right" {
+    pos.at(0) = length - pos.at(0)
+    invert_markings = -1
+  }
+  if axis.location == "top" {
+    pos.at(1) = -length + pos.at(1)
+    invert_markings = -1
+  }
+  if is_vertical(axis) {
+    // Draw helper lines:
+    for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
+      if axis.helper_lines {
+        place(dx: pos.at(0), dy: pos.at(1) - step_length * step, line(angle: 0deg, length: length * invert_markings, stroke: (paint: axis.helper_line_color, dash:   axis.helper_line_style)))
+      } 
+    }
+  } else {
+    for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
+      if axis.helper_lines {
+        place(dx: pos.at(0) + step_length * step, dy: pos.at(1), line(angle: 90deg, length: length * -invert_markings, stroke: (paint: axis.helper_line_color, dash: axis.helper_line_style)))
+      } 
+    }
+  }
+}
 // ------------------------

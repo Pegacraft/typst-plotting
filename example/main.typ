@@ -1,4 +1,5 @@
-#import "/lib.typ": *
+#import "/lib.typ": * // For local testing
+//#import "@preview/plotst:0.1.0": *
 
 #let print(desc: "", content) = {
   desc
@@ -8,29 +9,34 @@
 #let scatter_plot_test() = {
   
   let gender_data = (
-    ("w", 1), ("w", 3), ("w", 5), ("w", 4), ("m", 2), ("m", 2), ("m", 4), ("m", 6), ("d", 1), ("d", 9), ("d", 5), ("d", 8), ("d", 3), ("d", 1), (0, 11)
+    ("w", 1), ("w", 3), ("w", 5), ("w", 4), ("m", 2), ("m", 2), ("m", 4), ("m", 6), ("d", 1), ("d", 9), ("d", 5), ("d", 8), ("d", 3), ("d", 1)
   )
   let y_axis = axis(min: 0, max: 11, step: 1, location: "left", helper_lines: true, invert_markings: false, title: "foo")
-  let gender_axis_x = axis(values: ("", "m", "w", "d"), location: "bottom", helper_lines: true, invert_markings: false, title: "Gender")
-  let pl = plot(data: gender_data, axes: (gender_axis_x, y_axis))
+
+  let y_axis_right = axis(min: 0, max: 11, step: 1, location: "right", helper_lines: false, invert_markings: false, title: "foo", stroke: 7pt + red, show_arrows: false)
+  let gender_axis_x = axis(values: ("", "m", "w", "d"), location: "bottom", helper_lines: true, invert_markings: false, title: "Gender", show_arrows: false)
+  let pl = plot(data: gender_data, axes: (gender_axis_x, y_axis, y_axis_right))
   scatter_plot(pl, (100%,50%))
   let data = (
     (0, 0), (2, 2), (3, 0), (4, 4), (5, 7), (6, 6), (7, 9), (8, 5), (9, 9), (10, 1)
   )
   let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")
-  let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
+  let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false, show_values: false)
   let pl = plot(data: data, axes: (x_axis, y_axis))
   scatter_plot(pl, (100%, 25%))
 }
 
 #let graph_plot_test() = {
     let data = (
-      (0, 0), (2, 2), (3, 0), (4, 4), (5, 7), (6, 6), (7, 9), (8, 5), (9, 9), (10, 1)
+      (0, 4), (2, 2), (3, 0), (4, 4), (5, 7), (6, 6), (7, 9), (8, 5), (9, 9), (10, 1)
+    )
+    let data2 = (
+      (0, 0), (2, 2), (3, 1), (4, 4), (5, 2), (6, 6), (7, 5), (8, 7), (9, 10), (10, 3)
     )
     let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")
     let y_axis = axis(min: 0, max: 11, step: 2, location: "left", helper_lines: false)
     let pl = plot(data: data, axes: (x_axis, y_axis))
-    graph_plot(pl, (100%, 25%))
+    graph_plot(pl, (100%, 25%), markings: [])
     graph_plot(pl, (100%, 25%), rounding: 30%, caption: "Graph Plot with caption and rounding", markings: [#emoji.rocket])
 }
 
@@ -125,13 +131,57 @@
 
 #let radar_test() = {
   let data = (
-    (0,6),(1,7),(2,5),(3,4),(4,4),(5,7),(6,6),(7,1),
+    (0,6),(1,7),(2,5),(3,4),(4,4),(5,7),(6,6),(7,6),
   )
   let y_axis = axis(min:0, max: 8, location: "left", helper_lines: true)
   let x_axis = axis(min:0, max: 8, location: "bottom")
   
   let pl = plot(data: data, axes: (x_axis, y_axis))
   radar_chart(pl, (100%,60%))
+}
+
+#let function_test() = {
+  let data = function_plotter(x => {2*(x*x) + 3*x + 3}, 0, 8.3, precision: 100)
+  let data2 = function_plotter(x => {1*(x*x) + 3*x + 3}, 0, 11.4, precision: 100)
+  let x_axis = axis(min: 0, max: 20, step: 1, location: "bottom")
+  let y_axis = axis(min: 0, max: 151, step: 50, location: "left", helper_lines: true)
+  let p1 = graph_plot(plot(axes: (x_axis, y_axis), data: data), (100%, 50%), markings: [], stroke: red)
+  let p2 = graph_plot(plot(axes: (x_axis, y_axis), data: data2), (100%, 50%), markings: [], stroke: green)
+  overlay((p1, p2), (100%, 50%))
+}
+
+#let box_plot_test() = {
+  box_plot(box_width: 70%, pre_calculated: false, plot(axes: (
+  axis(values: ("", "(a)", "(b)", "(c)"), location: "bottom", show_markings: false),
+  axis(min: 0, max: 10, step: 1, location: "left", helper_lines: true),
+),
+  data:((1, 3, 4, 4, 5, 6, 7, 8), (1, 3, 4, 4, 5, 7, 8), (1, 3, 4, 5, 7))
+), (100%, 40%), caption: none)
+}
+
+#let cumsum_test() = {
+  datetime(year: 2023, month: 1, day: 20) - datetime.today()
+  let data = range(1,31).map(i=> (datetime(year: 2023, month: 1, day: i),2))
+  let dates = data.map(it => it.at(0))
+  let newdata = ()
+  let sum = 0
+  for d in data {
+    sum += d.at(1)
+    newdata.push((d.at(0).display(), sum))
+  }
+  let _ = newdata.remove(0)
+  let x_axis = axis(values: dates.map(it=> it.display()), location: "bottom")
+  let y_axis = axis(min: 0, max: sum, step: 10, location: "left")
+  graph_plot(plot(axes: (x_axis, y_axis), data: newdata), (100%, 50%))
+}
+
+#let box_plot_test() = {
+  box_plot(box_width: 70%, pre_calculated: false, plot(axes: (
+  axis(values: ("", "(a)", "(b)", "(c)"), location: "bottom", show_markings: false),
+  axis(min: -5, max: 100, step: 10, location: "left"),
+),
+  data:((10, 20, 30, 50, 60), (5, 20, 25, 30, 45), (6, 19, 23, 37, 98))
+), (100%, 40%), caption: none)
 }
 
 #let paper_test() = {
@@ -218,6 +268,9 @@
   bar_chart_test()
   overlay_test()
   radar_test()
+  function_test()
+  box_plot_test()
+  //cumsum_test()
   
   paper_test()
 }

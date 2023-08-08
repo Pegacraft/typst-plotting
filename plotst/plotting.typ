@@ -4,7 +4,7 @@
 #import calc: *
 
 // hackyish solution to split axis and content
-#let render(plot, plot_code, render_axis) = style(style => {
+#let render(plot, plot_code, render_axis, helper_line) = style(style => {
         let widths = 0pt
         let heights = 0pt
         let offset_left = 0pt
@@ -33,14 +33,19 @@
         if y_axis.location == "left" {
           offset_x = offset_left
         }
-        place(dx: offset_x, dy: -100% + heights+offset_y, box(width: 100% - widths, height: 100% - heights, fill: none, {
+        place(dx: offset_x, dy: 100% - offset_bottom, box(width: 100% - widths, height: 100% - heights, fill: none, {
+          if helper_line {
+            for axis in plot.axes {
+              draw_helper_lines(axis)
+            }
+          }
           if render_axis {
             for axis in plot.axes {
               draw_axis(axis)
             }
           } else {
-          plot_code()
-        }
+            plot_code()
+          }
       }))
     })
 
@@ -61,8 +66,8 @@
     // Graph box
     set align(left + bottom)
     box(width: width, height: height, fill: none, if plot == () { plot_code() } else {
-      if render_axis { render(plot, plot_code, true) } 
-      render(plot, plot_code, false)
+      if render_axis { render(plot, plot_code, true, true) } 
+      render(plot, plot_code, false, false)
     })
   })
 }
@@ -103,9 +108,9 @@
       // loop over every plots
       for (idx, plot) in plots.enumerate() {
         if idx == 0 {
-          place(dx: 0pt, dy: -100%, box(width: 100%, height: 100%, plot.body.child.body))
+          place(dx: 0pt, dy: 0pt, box(width: 100%, height: 100%, plot.body.child.body))
         } else {
-          place(dx: 0pt, dy: -100%,box(width: 100%, height: 100%, plot.body.child.body.children.at(1)))
+          place(dx: 0pt, dy: 0pt, box(width: 100%, height: 100%, plot.body.child.body.children.at(1)))
         }
       }
     })
@@ -603,4 +608,68 @@
   }
 
   prepare_plot(size, caption, plot_code, plot: plot, render_axis: false)
+}
+
+
+/// This function will display a boxplot based on the provided `plot` object.
+#let box_plot(plot, size, caption: "Box plot", stroke: black, fill: none, whisker_stroke: black, box_width: 100%, pre_calculated: true, render_axes: true) = {
+  // Get the relevant axes:
+  let x_axis = plot.axes.at(0)
+  let y_axis = plot.axes.at(1)
+  
+  let plot_code() = {
+    // get step sizes
+    let step_size_x = calc_step_size(100%, x_axis)
+    let step_size_y = calc_step_size(100%, y_axis)
+    // only data containing (minimum, first_quartile, median, third_quartile, maximum)
+    // get correct data
+    let calc_data = plot.data.map(dataset => transform_data_full(dataset).sorted())
+    let data = calc_data.map(dataset => (
+      dataset.at(0),
+      if calc.rem(dataset.len() * 0.25, 1) != 0 {
+        dataset.at(int(dataset.len() * 0.25))} 
+        else {
+          (dataset.at(int(dataset.len() * 0.25) - 1) + dataset.at(int(dataset.len() * 0.25))) / 2},
+      if calc.rem(dataset.len() * 0.25, 1) != 0 {
+        dataset.at(int(dataset.len() * 0.5))} 
+        else {
+          (dataset.at(int(dataset.len() * 0.5) - 1) + dataset.at(int(dataset.len() * 0.5))) / 2},
+      if calc.rem(dataset.len() * 0.25, 1) != 0 {
+        dataset.at(int(dataset.len() * 0.75))} 
+        else {
+          (dataset.at(int(dataset.len() * 0.75) - 1) + dataset.at(int(dataset.len() * 0.75))) / 2},
+      dataset.at(dataset.len() - 1)
+    ))
+    data = if pre_calculated {plot.data} else {data}
+    
+    // let data = transform_data_count(plot.data)
+    let array_stroke = type(stroke) == "array"
+    let array_fill = type(fill) == "array"
+    // draw the boxes
+    data = if type(data.at(0)) == "array" {
+      data
+    } else {
+      (data,)
+    }
+    for (idx, data_set) in data.enumerate() {
+      let q(i) = (data_set.at(i) - y_axis.min) * step_size_y
+      let x_data = data_set.at(5, default: idx + 1)
+      if type(x_data) == "string" {
+        x_data = x_axis.values.position(c => c == x_data)
+      }
+      let box_width = step_size_x * box_width
+      let whisk_width = box_width * 50%
+      let x_pos = x_data * step_size_x - box_width / 2
+      place(dx: x_pos, dy: -q(3),
+        rect(width: box_width, height: q(3) - q(1),
+          fill: if array_fill {fill.at(idx)} else {fill}, 
+          stroke: if array_stroke {stroke.at(idx)} else {stroke}))
+      place(dx: x_pos, dy: -q(2), line(length: box_width))
+      place(dx: x_pos + (box_width - whisk_width) * .5, dy: -q(0), line(length: whisk_width))
+      place(dx: x_pos + box_width * .5, dy: -q(0), line(end: (0pt, q(0)-q(1)), stroke: whisker_stroke))
+      place(dx: x_pos + (box_width - whisk_width) * .5, dy: -q(4), line(length: whisk_width))
+      place(dx: x_pos + box_width * .5, dy: -q(3), line(end: (0pt, q(3)-q(4)), stroke: whisker_stroke))
+    } 
+  }
+  prepare_plot(size, caption, plot_code, plot: plot, render_axis: render_axes)
 }
