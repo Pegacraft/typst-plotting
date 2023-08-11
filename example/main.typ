@@ -7,13 +7,13 @@
   [ \ ]
 }
 #let scatter_plot_test() = {
-  
+
   let gender_data = (
     ("w", 1), ("w", 3), ("w", 5), ("w", 4), ("m", 2), ("m", 2), ("m", 4), ("m", 6), ("d", 1), ("d", 9), ("d", 5), ("d", 8), ("d", 3), ("d", 1)
   )
-  let y_axis = axis(min: 0, max: 11, step: 1, location: "left", helper_lines: true, invert_markings: false, title: "foo")
+  let y_axis = axis(min: 0, max: 11, step: 1, location: "left", helper_lines: true, invert_markings: false, title: "foo", value_formatter: "{}€")
 
-  let y_axis_right = axis(min: 0, max: 11, step: 1, location: "right", helper_lines: false, invert_markings: false, title: "foo", stroke: 7pt + red, show_arrows: false)
+  let y_axis_right = axis(min: 1, max: 11, step: 1, location: "right", helper_lines: false, invert_markings: false, title: "foo", stroke: 7pt + red, show_arrows: false, value_formatter: i => datetime(year: 1984, month: 1, day: i).display("[day].[month]."))
   let gender_axis_x = axis(values: ("", "m", "w", "d"), location: "bottom", helper_lines: true, invert_markings: false, title: "Gender", show_arrows: false)
   let pl = plot(data: gender_data, axes: (gender_axis_x, y_axis, y_axis_right))
   scatter_plot(pl, (100%,50%))

@@ -1,5 +1,6 @@
-// DONT COMMIT ME
+// This sign can't stop me if I can't read
 #import "util/util.typ": *
+#import "@preview/oxifmt:0.2.0": strfmt
 
 //------------------
 // THIS FILE CONTAINS EVERYTHING TO DRAW AND REPRESENT AXES
@@ -31,6 +32,8 @@
 /// let y_axis_2 = axis(min: 0, max: 41, step: 10, 
 ///   location: "left", show_markings: true, helper_lines: true)```
 ///
+/// *NOTE:* this might change to kebab-case
+///
 /// - min (integer, float): From where `values` should started generating (inclusive)
 /// - max (integer, float): Where `values` should stopped being generated (exclusive)
 /// - step (integer, float): The steps that should be taken when generating `values`
@@ -51,7 +54,8 @@
 /// - marking_length (length): The length of a marking in absolute size
 /// - marking_number_distance (length): The distance between the marker and the number
 /// - title (content): The display name of the axis
-#let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_arrows: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt, title: []) = {
+/// - value_formatter (string, function): How values get displayed; uses https://github.com/typst/packages/tree/main/packages/preview/oxifmt/0.2.0 or a mapper function
+#let axis(min: 0, max: 0, step: 1, values: (), location: "bottom", show_values: true, show_arrows: true, show_markings: true, invert_markings: false, marking_offset_left: 1, marking_offset_right: 0, stroke: black, marking_color: black, value_color: black, helper_lines: false, helper_line_style: "dotted", helper_line_color: gray, marking_length: 5pt, marking_number_distance: 5pt, title: [], value_formatter: i => i) = { // TODO automate? macro-programming?
   let axis_data = (
     min: min,
     max: max,
@@ -72,15 +76,24 @@
     marking_length: marking_length,
     marking_number_distance: marking_number_distance,
     title: title,
-    values: values
+    values: values,
+    value_formatter: value_formatter,
   )
   
   if values.len() == 0 {
     axis_data.values = float_range(min, max, step: step)
   }
-
-  return axis_data
   
+  return axis_data
+}
+
+#let format(axis, value) = {
+  let fmt = axis.value_formatter
+  if type(fmt) == "string" {
+    return strfmt(fmt, value)
+  } else if type(fmt) == "function" {
+    return fmt(value)
+  } 
 }
 
 // returns true if and only if the axis is on the left or right, false if top or bottom, panics otherwise
@@ -110,7 +123,7 @@
   let title_extra = measure(axis.title, style).height
 
   let sizes = axis.values.map(it => {
-    let size = measure([#it], style)
+    let size = measure([#format(axis, it)], style)
     if is_vertical(axis) {
       return size.width
     } else {
@@ -185,12 +198,12 @@
         }
         // Draw numbering
         if axis.show_values {
-          let number = axis.values.at(step)
+          let number = [#format(axis, axis.values.at(step))]
           style(styles => {
-            let size = measure([#number], styles)
+            let size = measure(number, styles)
             let dist = if axis.invert_markings {axis.marking_length + axis.marking_number_distance} else {axis.marking_number_distance}
             let inversion = if invert_markings == -1 {dist * 2 + size.width} else {0pt}
-            place(dx: pos.at(0) - dist - size.width + inversion, dy: pos.at(1) - step_length * step - 4pt, text(fill: axis.value_color, [#number]))
+            place(dx: pos.at(0) - dist - size.width + inversion, dy: pos.at(1) - step_length * step - 4pt, text(fill: axis.value_color, number))
           })
         }
       }
