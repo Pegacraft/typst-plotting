@@ -21,7 +21,7 @@ Made by Gewi413 and Pegacraffft
 
 ## How to use
 
-To use the package you can import it through this command `import "@preview/plotst:0.1.0": *` (as soon as the pull request ist accepted). 
+To use the package you can import it through this command `import "@preview/plotst:0.2.0": *` (as soon as the pull request ist accepted). 
 The documentation is found in the `Docs.pdf` in the `docs` folder. It contains all functions necessary to use this library. It also includes a tutorial to create every available plot under their respective render methods.
 
 If you need some example code, check out `main.typ` in the `examples` folder. It also includes a compiled version of the current `main.typ`
