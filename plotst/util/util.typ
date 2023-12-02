@@ -28,7 +28,7 @@
     return data_full
   }
 
-  // count class occurances
+  // count class occurrences
   let new_data = ()
   for data in data_full {
    let found = false

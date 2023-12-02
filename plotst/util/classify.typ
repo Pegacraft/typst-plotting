@@ -46,7 +46,7 @@
 
 /// Classifies the provided data into the given classes. This has to be done to create a `histogram`.
 /// - data (array): The data you want to classify (needs to be comparable by the compare function). It's either an `array` of single values or an `array` of `tuples` looking like this: `(amount, value)`.
-/// - classes (array): An array of classes the data should be mapped to (`lower_limit` and `uper_limit` need to be comparable).
+/// - classes (array): An array of classes the data should be mapped to (`lower_limit` and `upper_limit` need to be comparable).
 /// - compare (function): The method used for comparing. Most of the time this doesn't need to be changed. If you want to use a different compare function, look at the specification for it (_see:_ `compare(val1, val2)`).
 #let classify(data, classes, compare: compare) = {
   let data = transform_data_full(data)

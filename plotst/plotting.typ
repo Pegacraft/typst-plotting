@@ -275,7 +275,7 @@
     }
     
     // Find most common class size
-    // count class occurances
+    // count class occurrences
     let bin_count = ()
     for data in plot.data {
      let temp = data.upper_lim - data.lower_lim
@@ -466,7 +466,7 @@
 /// let y_axis = axis(min: 0, max: 9, step: 1, location: "left")``` \
 /// Now we need to create the `plot` object. \
 /// ```typc let pl = plot(axes: (x_axis, y_axis), data: data)``` \ \
-/// Last, we just call this function to display the chart. We specify fill colors for every single bar to make it easier to differenciate and we make the bars 30% smaller to create small gaps between bars close to each other. \
+/// Last, we just call this function to display the chart. We specify fill colors for every single bar to make it easier to differentiate and we make the bars 30% smaller to create small gaps between bars close to each other. \
 /// ```typc bar_chart(pl, (100%, 120pt), fill: (purple, blue, red, green, yellow), bar_width: 70%)``` \ \
 /// - plot (plot): The format of the plot variables are as follows: \
 ///   - `axes:` Two axes are required. The first one as the x-axis, the second as the y-axis. \ _Example:_ `(x_axis, y_axis)`

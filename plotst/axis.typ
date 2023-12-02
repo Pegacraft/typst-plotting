@@ -14,7 +14,7 @@
 /// ```js let x_axis = axis(min: 0, max: 11, step: 2, location: "bottom")``` \
 /// will cause `values` to look like this: \
 /// `(0, 2, 4, 6, 8, 10)` \ \
-/// If you want to specify your own values, for example when using text on an axis, you need to specify `values` by yourself. Custom specified values could look like this `("", "male", "female", "divers", "unknown")` (the first empty string is not neccessary, but will make some graphs/plots look a lot better). \ \
+/// If you want to specify your own values, for example when using text on an axis, you need to specify `values` by yourself. Custom specified values could look like this `("", "male", "female", "divers", "unknown")` (the first empty string is not necessary, but will make some graphs/plots look a lot better). \ \
 /// You can obviously do a lot more than just this, so I recommend taking a look at the examples. \ \
 /// === Examples
 /// An x-axis for different genders:
@@ -256,7 +256,7 @@
     }
 }
 
-// Draws the helper lines for an axis. Needs to be seperated for rendering order reasons
+// Draws the helper lines for an axis. Needs to be separated for rendering order reasons
 #let draw_helper_lines(axis, length: 100%, pos: (0pt, 0pt)) = {
   let step_length = length / axis.values.len()
   let invert_markings = 1

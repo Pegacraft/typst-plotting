@@ -171,7 +171,7 @@
 /// The function documentation dictionaries contain the keys
 /// - `name`: The function name.
 /// - `description`: The functions docstring description.
-/// - `args`: A dictionary of info objects for each fucntion argument.
+/// - `args`: A dictionary of info objects for each function argument.
 ///
 /// These again are dictionaries with the keys
 /// - `description` (optional): The description for the argument.
