@@ -80,12 +80,12 @@
       if step < 0 {
         while it.last() + step > max {
           assert(it.last() + step < it.last(), message: "step size too small to decrease float")
-          it.push(it.last() + step)
+          it.push(calc.round(it.last() + step, digits: 2))
         }
       } else {
         while it.last() + step < max {
           assert(it.last() + step > it.last(), message: "step size too small to increase float")
-          it.push(it.last() + step)
+          it.push(calc.round(it.last() + step, digits: 2))
         }
       }
       it
