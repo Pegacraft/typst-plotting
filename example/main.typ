@@ -1,4 +1,5 @@
 #import "/lib.typ": * // For local testing
+#import "../plotst/util/util.typ": function_plotter
 //#import "@preview/plotst:0.1.0": *
 
 #let print(desc: "", content) = {

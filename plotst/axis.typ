@@ -120,10 +120,10 @@
   let dist = if axis.invert_markings {axis.marking_length + axis.marking_number_distance} else {axis.marking_number_distance}
   let inversion = if axis.invert_markings == -1 {dist * 2 + size.width} else {0pt}
 
-  let title_extra = measure(axis.title, style).height
+  let title_extra = measure(axis.title).height
 
   let sizes = axis.values.map(it => {
-    let size = measure([#format(axis, it)], style)
+    let size = measure([#format(axis, it)])
     if is_vertical(axis) {
       return size.width
     } else {
@@ -176,14 +176,14 @@
       }
       // Places the title
       //place(dy: -50%, rotate(-90deg, axis.title)) // TODO
-      style(style => {
+      context {
         let a = measure_axis(axis, style).at(0)
         if axis.location == "left" {
           place(dy: pos.at(1) - length / 2, dx: -length/2 - a, rotate(-90deg, origin: center + top, box(width: length, height:0pt, align(center+top, axis.title))))
         } else {
           place(dy: pos.at(1) - length / 2, dx: length/2 +a, rotate(-90deg, origin: center + top, box(width: length, height:0pt, align(center+bottom, axis.title))))
         }
-      })
+      }
 
       // Draws step markings
       for step in range(axis.marking_offset_left, axis.values.len() - axis.marking_offset_right) {
@@ -199,12 +199,12 @@
         // Draw numbering
         if axis.show_values {
           let number = [#format(axis, axis.values.at(step))]
-          style(styles => {
-            let size = measure(number, styles)
+          context {
+            let size = measure(number)
             let dist = if axis.invert_markings {axis.marking_length + axis.marking_number_distance} else {axis.marking_number_distance}
             let inversion = if invert_markings == -1 {dist * 2 + size.width} else {0pt}
             place(dx: pos.at(0) - dist - size.width + inversion, dy: pos.at(1) - step_length * step - 4pt, text(fill: axis.value_color, number))
-          })
+          }
         }
       }
 
@@ -245,12 +245,12 @@
         // Show values
         if axis.show_values {
           let number = axis.values.at(step)
-          style(styles => {
-            let size = measure([#number], styles)
+          context {
+            let size = measure([#number])
             let dist = if axis.invert_markings {axis.marking_number_distance + axis.marking_length} else {axis.marking_number_distance}
             let inversion = if invert_markings == -1 {-dist * 2 - size.height} else {0pt}
             place(dx: pos.at(0) + step_length * step, dy: pos.at(1) + dist + inversion, box(width: 0pt, align(center, text(fill: axis.value_color, str(number)))))
-          })
+          }
         }
       }
     }
