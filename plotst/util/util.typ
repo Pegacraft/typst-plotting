@@ -66,10 +66,10 @@
       place(line(angle: -135deg, length: 1pt))
     }
   }
-  style(s => {
-    let (width, height) = measure(markings, s)
+  context {
+    let (width, height) = measure(markings)
     place(dx: data.at(0) - width/2, dy: data.at(1) - height/2, markings)
-  })
+  }
 }
 
 // range that supports float parameters

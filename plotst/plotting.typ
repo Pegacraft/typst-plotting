@@ -4,7 +4,7 @@
 #import calc: *
 
 // hackyish solution to split axis and content
-#let render(plot, plot_code, render_axis, helper_line) = style(style => {
+#let render(plot, plot_code, render_axis, helper_line) = context {
         let widths = 0pt
         let heights = 0pt
         let offset_left = 0pt
@@ -47,7 +47,7 @@
             plot_code()
           }
       }))
-    })
+    }
 
 // Prepares everything for a plot and executes the function that draws a plot. Supplies it with width and height
 // size: the size of the plot either as array(width, height) or length
@@ -425,8 +425,8 @@
         }
         angle += fraction
       }
-      style(s =>{
-        let legend-size = measure(legend, s)
+      context {
+        let legend-size = measure(legend)
         if display_style == "vert-chart-legend" {
           place(dx: 50% - radius, dy: -30pt, pie)
           place(dx: 50% - legend-size.width / 2, dy: -20pt, legend)
@@ -445,7 +445,7 @@
           panic(display_style + " is not a valid display_style")
         }
         
-      })
+      }
       
     })
   }
